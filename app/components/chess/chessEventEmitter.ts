@@ -1,0 +1,108 @@
+import EventEmitter from "events";
+import TypedEmitter from "typed-emitter";
+import { Board, ChessMovement } from "./chessMovement";
+import { ChessRules } from "./rules";
+import { Pieces, Colors } from "./utils";
+
+export function getChessEventEmitter() {
+  const chessMovement = new ChessMovement();
+
+  const chessEventEmitter = new EventEmitter() as TypedEmitter<ChessEvents>;
+
+  chessEventEmitter.on("pieceClicked", (data) => {
+    const selected = chessMovement.getSelectedPiece();
+
+    if (!selected) {
+      chessMovement.selectPiece(data.square, data.piece, data.color);
+      return;
+    }
+
+    if (selected.square == data.square) {
+      return;
+    }
+
+    if (selected.color == data.color) {
+      chessMovement.selectPiece(data.square, data.piece, data.color);
+      return;
+    }
+
+    let isMoveAvaliable = false;
+
+    selected.avaliableMoves.forEach((move) => {
+      if (data.square === move) {
+        isMoveAvaliable = true;
+        return;
+      }
+    });
+
+    if (isMoveAvaliable) {
+      chessMovement.move(selected.square, data.square);
+
+      chessEventEmitter.emit(
+        "move",
+        selected.square,
+        data.square,
+        selected.piece,
+        selected.color
+      );
+    }
+
+    chessMovement.unselectPiece();
+  });
+
+  chessEventEmitter.on("squareClicked", (data) => {
+    const selected = chessMovement.getSelectedPiece();
+
+    if (selected == null) {
+      return;
+    }
+
+    let isMoveAvaliable = false;
+
+    selected.avaliableMoves.forEach((move) => {
+      if (data.square === move) {
+        isMoveAvaliable = true;
+        return;
+      }
+    });
+
+    if (isMoveAvaliable) {
+      chessMovement.move(selected.square, data.square);
+
+      chessEventEmitter.emit(
+        "move",
+        selected.square,
+        data.square,
+        selected.piece,
+        selected.color
+      );
+    }
+
+    chessMovement.unselectPiece();
+  });
+
+  chessEventEmitter.once("initChessMovement", (board, rules) => {
+    chessMovement.setRules(rules);
+    chessMovement.setSquares(board);
+  });
+
+  return chessEventEmitter;
+}
+
+export type ChessEvents = PieceEvents &
+  SquareEvents & {
+    initChessMovement: (board: Board, rules: ChessRules) => void;
+  };
+
+export type SquareEvents = {
+  squareClicked: (data: { square: string; color: Colors }) => void;
+  move: (from: string, to: string, piece: Pieces, color: Colors) => void;
+};
+
+export type PieceEvents = {
+  pieceClicked: (data: {
+    piece: Pieces;
+    square: string;
+    color: Colors;
+  }) => void;
+};

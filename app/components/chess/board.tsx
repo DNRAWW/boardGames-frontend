@@ -1,0 +1,154 @@
+import {
+  Colors,
+  columnNames,
+  fenToColor,
+  fenToPiece,
+  formatColumns,
+  Pieces,
+} from "./utils";
+import Square from "./square";
+import Piece from "./piece";
+import { ChessEvents, getChessEventEmitter } from "./chessEventEmitter";
+import TypedEventEmitter from "typed-emitter";
+import { BadInputError, InvalidFenError } from "./errors";
+import { Board } from "./chessMovement";
+import { ChessRules } from "./rules";
+
+interface BoardProps {
+  fen: string;
+  perspective: Colors;
+  rules: ChessRules;
+}
+
+// TODO: REFACTORING
+function renderSquares(
+  fen: string,
+  perspective: Colors,
+  eventEmitter: TypedEventEmitter<ChessEvents>
+) {
+  const fenSections = fen.split(" ");
+
+  let startRow = 0;
+  let startColumn = 0;
+  let endRow = 0;
+  let endColumn = 0;
+  let loopIncremet = 0;
+
+  if (perspective === Colors.WHITE) {
+    startRow = 8;
+    startColumn = 1;
+    endRow = 1;
+    endColumn = 8;
+    loopIncremet = -1;
+  } else if (perspective === Colors.BLACK) {
+    startRow = 1;
+    startColumn = 8;
+    endRow = 8;
+    endColumn = 1;
+    loopIncremet = 1;
+  } else {
+    throw BadInputError();
+  }
+
+  if (fenSections.length != 6) {
+    throw InvalidFenError(fen);
+  }
+
+  const rows = fenSections[0].split("/").reverse();
+
+  const squares: { [key: string]: JSX.Element } = {};
+  const board: Board = {};
+
+  const renderDone = (row: number) => {
+    if (perspective === Colors.WHITE) {
+      return row >= endRow;
+    }
+
+    return row <= endRow;
+  };
+
+  const columnsLeft = (column: number) => {
+    if (perspective === Colors.WHITE) {
+      return column <= endColumn;
+    }
+
+    return column >= endColumn;
+  };
+
+  for (let row = startRow; renderDone(row); row += loopIncremet) {
+    const currentRow = rows[row - 1].split("");
+
+    let columns: string[] | null = formatColumns(currentRow);
+
+    if (columns === null) {
+      throw InvalidFenError(fen);
+    }
+
+    for (
+      let column = startColumn;
+      columnsLeft(column);
+      column -= loopIncremet
+    ) {
+      const columnContent = columns[column - 1];
+
+      let piece: Pieces | undefined = undefined;
+      let pieceColor: Colors | undefined = undefined;
+
+      if (columnContent !== "" && columnContent !== "1") {
+        piece = fenToPiece(columnContent);
+        pieceColor = fenToColor(columnContent);
+
+        if (!piece || !pieceColor) {
+          throw InvalidFenError(fen);
+        }
+      }
+      const squareName = columnNames[column - 1] + row;
+
+      squares[squareName] = (
+        <Square
+          square={squareName}
+          color={(column + row) % 2 !== 0 ? Colors.WHITE : Colors.BLACK}
+          key={squareName}
+          eventEmitter={eventEmitter}
+        >
+          {piece && pieceColor ? (
+            <Piece
+              piece={piece}
+              color={pieceColor}
+              square={squareName}
+              eventEmitter={eventEmitter}
+            ></Piece>
+          ) : undefined}
+        </Square>
+      );
+
+      board[squareName] =
+        piece && pieceColor
+          ? {
+              Piece: piece,
+              Color: pieceColor,
+            }
+          : null;
+    }
+  }
+
+  return { squares, board };
+}
+
+export default function Board(props: BoardProps) {
+  const chessEventEmitter = getChessEventEmitter();
+
+  chessEventEmitter.setMaxListeners(64);
+
+  const { squares, board } = renderSquares(
+    props.fen,
+    props.perspective,
+    chessEventEmitter
+  );
+
+  chessEventEmitter.emit("initChessMovement", board, props.rules);
+
+  return (
+    <div className="grid grid-cols-chess gap-0">{Object.values(squares)}</div>
+  );
+}
