@@ -5,6 +5,9 @@ import { Colors, Pieces } from "./utils";
 export type Board = { [key: string]: { Piece: Pieces; Color: Colors } | null };
 
 export class ChessMovement {
+  // TODO: add controlled field to board squares
+  // so that we can know if a move
+  // is dangerous for the king
   private board: Board | null = null;
   private rules: ChessRules | null = null;
 
