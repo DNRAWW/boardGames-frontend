@@ -29,11 +29,6 @@ export default function Square(props: SquareProps) {
 
       if (props.square == from) {
         setPiece(undefined);
-
-        props.eventEmitter.emit("squareClicked", {
-          color: props.color,
-          square: props.square,
-        });
       } else {
         setPiece(
           <Piece

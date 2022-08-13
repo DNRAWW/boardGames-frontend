@@ -13,6 +13,188 @@ const COLUMN_NUMBERS: { [key: string]: number } = {
   h: 8,
 };
 
+// TODO: refactoring
+const directionLineFuncs = {
+  row: (
+    board: InitailizedBoard,
+    startSquare: string,
+    directionChange: -1 | 1
+  ) => {
+    const avaliableMoves: string[] = [];
+    const pieceColor: Colors = <Colors>board[startSquare]?.Color;
+
+    let currentSquare = startSquare;
+
+    for (let c = 0; c < 8; c++) {
+      const columnAndRow = currentSquare.split("");
+
+      const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
+      const row = parseInt(columnAndRow[1]);
+
+      const column = columnAndRow[0];
+      const nextRow = row + directionChange;
+
+      const candidateMove = column + nextRow;
+
+      if (board[candidateMove] === undefined) {
+        break;
+      }
+
+      const isCandidateMoveAvaliable = isMoveAvaliable(
+        board,
+        candidateMove,
+        pieceColor
+      );
+
+      if (isCandidateMoveAvaliable === true) {
+        avaliableMoves.push(candidateMove);
+        if (board[candidateMove] !== null) {
+          break;
+        }
+        currentSquare = candidateMove;
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    return avaliableMoves;
+  },
+
+  col: (
+    board: InitailizedBoard,
+    startSquare: string,
+    directionChange: -1 | 1
+  ) => {
+    const avaliableMoves: string[] = [];
+    const pieceColor: Colors = <Colors>board[startSquare]?.Color;
+
+    let currentSquare = startSquare;
+
+    for (let c = 0; c < 8; c++) {
+      const columnAndRow = currentSquare.split("");
+
+      const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
+      const row = parseInt(columnAndRow[1]);
+      const column = columnNames[columnNumber + directionChange - 1];
+
+      if (column === undefined) {
+        break;
+      }
+
+      const candidateMove = column + row;
+
+      if (board[candidateMove] === undefined) {
+        break;
+      }
+
+      const isCandidateMoveAvaliable = isMoveAvaliable(
+        board,
+        candidateMove,
+        pieceColor
+      );
+
+      if (isCandidateMoveAvaliable) {
+        avaliableMoves.push(candidateMove);
+        if (board[candidateMove] !== null) {
+          break;
+        }
+        currentSquare = candidateMove;
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    return avaliableMoves;
+  },
+
+  d1: (
+    board: InitailizedBoard,
+    startSquare: string,
+    directionChange: -1 | 1
+  ) => {
+    const availableMoves: string[] = [];
+    const pieceColor = <Colors>board[startSquare]?.Color;
+
+    let currentSquare = startSquare;
+
+    for (let c = 0; c < 8; c++) {
+      const columnAndRow = currentSquare.split("");
+      const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
+      const row = parseInt(columnAndRow[1]) + 1;
+      const column = columnNames[columnNumber + directionChange - 1];
+
+      if (column === undefined) {
+        break;
+      }
+
+      if (row > 8 || row < 1) {
+        break;
+      }
+
+      const candidateMove = column + row;
+
+      if (isMoveAvaliable(board, candidateMove, pieceColor)) {
+        availableMoves.push(candidateMove);
+
+        if (board[candidateMove] !== null) {
+          break;
+        }
+
+        currentSquare = candidateMove;
+      } else {
+        break;
+      }
+    }
+
+    return availableMoves;
+  },
+
+  d2: (
+    board: InitailizedBoard,
+    startSquare: string,
+    directionChange: -1 | 1
+  ) => {
+    const availableMoves: string[] = [];
+
+    const pieceColor = <Colors>board[startSquare]?.Color;
+
+    let currentSquare = startSquare;
+
+    for (let c = 0; c < 8; c++) {
+      const columnAndRow = currentSquare.split("");
+      const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
+      const row = parseInt(columnAndRow[1]) - 1;
+      const column = columnNames[columnNumber - directionChange - 1];
+
+      if (column === undefined) {
+        break;
+      }
+
+      if (row > 8 || row < 1) {
+        break;
+      }
+
+      const candidateMove = column + row;
+
+      if (isMoveAvaliable(board, candidateMove, pieceColor)) {
+        availableMoves.push(candidateMove);
+
+        if (board[candidateMove] !== null) {
+          break;
+        }
+
+        currentSquare = candidateMove;
+      } else {
+        break;
+      }
+    }
+
+    return availableMoves;
+  },
+};
+
 // TODO: refactor this ->
 // const columnAndRow = square.split("");
 // const column = columnAndRow[0];
@@ -81,89 +263,85 @@ const isMoveAvaliable = (
   return false;
 };
 
-// TODO: add d1 and d2, REFACTORING
+// TODO: refactoring
+const getHalfKnightMoves = (
+  board: InitailizedBoard,
+  startSquare: string,
+  columnChage: 1 | -1
+) => {
+  const avaliableMoves: string[] = [];
+
+  const columnAndRow = startSquare.split("");
+  const column = columnAndRow[0];
+  const row = columnAndRow[1];
+  const columnNumber = COLUMN_NUMBERS[column];
+
+  const pieceColor = <Colors>board[startSquare]?.Color;
+
+  const candidateMoveOne =
+    columnNames[columnNumber + columnChage - 1] + (Number(row) + 2);
+
+  if (
+    board[candidateMoveOne] !== undefined &&
+    isMoveAvaliable(board, candidateMoveOne, pieceColor)
+  ) {
+    avaliableMoves.push(candidateMoveOne);
+  }
+
+  const candidateMoveTwo =
+    columnNames[columnNumber + 2 * columnChage - 1] + (Number(row) + 1);
+
+  if (
+    board[candidateMoveTwo] !== undefined &&
+    isMoveAvaliable(board, candidateMoveTwo, pieceColor)
+  ) {
+    avaliableMoves.push(candidateMoveTwo);
+  }
+
+  const candidateMoveThree =
+    columnNames[columnNumber + 2 * columnChage - 1] + (Number(row) - 1);
+
+  if (
+    board[candidateMoveThree] !== undefined &&
+    isMoveAvaliable(board, candidateMoveThree, pieceColor)
+  ) {
+    avaliableMoves.push(candidateMoveThree);
+  }
+
+  const candidateMoveFour =
+    columnNames[columnNumber + columnChage - 1] + (Number(row) - 2);
+
+  if (
+    board[candidateMoveFour] !== undefined &&
+    isMoveAvaliable(board, candidateMoveFour, pieceColor)
+  ) {
+    avaliableMoves.push(candidateMoveFour);
+  }
+
+  return avaliableMoves;
+};
+
+// TODO: REFACTORING
 const getAvaliableMovesInLine = (
   board: InitailizedBoard,
   startSquare: string,
   direction: "row" | "col" | "d1" | "d2",
   directionChange: -1 | 1
 ): string[] => {
-  if (direction !== "row" && direction !== "col") {
-    throw Error("Invalid direction name");
-  }
-
-  const avaliableMoves: string[] = [];
-
-  let currentSquare = startSquare;
-  const pieceColor: Colors = <Colors>board[startSquare]?.Color;
-
-  for (let c = 0; c < 8; c++) {
-    const columnAndRow = currentSquare.split("");
-
-    const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
-    const row = parseInt(columnAndRow[1]);
-
-    if (direction === "row") {
-      const column = columnAndRow[0];
-      const nextRow = row + directionChange;
-
-      const candidateMove = column + nextRow;
-
-      if (board[candidateMove] === undefined) {
-        break;
-      }
-
-      const isCandidateMoveAvaliable = isMoveAvaliable(
-        board,
-        candidateMove,
-        pieceColor
-      );
-
-      if (isCandidateMoveAvaliable === true) {
-        avaliableMoves.push(candidateMove);
-        if (board[candidateMove] !== null) {
-          break;
-        }
-        currentSquare = candidateMove;
-        continue;
-      } else {
-        break;
-      }
-    }
-
-    if (direction === "col") {
-      const column = columnNames[columnNumber + directionChange - 1];
-
-      if (column === undefined) {
-        break;
-      }
-
-      const candidateMove = column + row;
-
-      if (board[candidateMove] === undefined) {
-        break;
-      }
-
-      const isCandidateMoveAvaliable = isMoveAvaliable(
-        board,
-        candidateMove,
-        pieceColor
-      );
-
-      if (isCandidateMoveAvaliable) {
-        avaliableMoves.push(candidateMove);
-        if (board[candidateMove] !== null) {
-          break;
-        }
-        currentSquare = candidateMove;
-        continue;
-      } else {
-        break;
-      }
-    }
-  }
+  const avaliableMoves: string[] = directionLineFuncs[direction](
+    board,
+    startSquare,
+    directionChange
+  );
 
   return avaliableMoves;
+};
+
+const getQueenMoves = (board: InitailizedBoard, square: string): string[] => {
+  return [
+    ...regularRules.bishop.getAvaliableMoves(board, square),
+    ...regularRules.rook.getAvaliableMoves(board, square),
+  ];
 };
 
 export const regularRules: ChessRules = {
@@ -171,10 +349,22 @@ export const regularRules: ChessRules = {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
       const avaliableMoves: string[] = [];
 
+      const diagonalHalfOne = getAvaliableMovesInLine(board, square, "d1", 1);
+      const diagonalHalfTwo = getAvaliableMovesInLine(board, square, "d1", -1);
+
+      const diagonalHalfThree = getAvaliableMovesInLine(board, square, "d2", 1);
+      const diagonalHalfFour = getAvaliableMovesInLine(board, square, "d2", -1);
+
+      avaliableMoves.push(
+        ...diagonalHalfOne,
+        ...diagonalHalfTwo,
+        ...diagonalHalfThree,
+        ...diagonalHalfFour
+      );
+
       return avaliableMoves;
     },
   },
-
   // TODO: check if any of the moves are dangerous
   king: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
@@ -211,6 +401,11 @@ export const regularRules: ChessRules = {
   knight: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
       const avaliableMoves: string[] = [];
+
+      const firstHalf: string[] = getHalfKnightMoves(board, square, 1);
+      const secondHalf: string[] = getHalfKnightMoves(board, square, -1);
+
+      avaliableMoves.push(...firstHalf, ...secondHalf);
 
       return avaliableMoves;
     },
@@ -260,9 +455,7 @@ export const regularRules: ChessRules = {
   },
   queen: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
-      const avaliableMoves: string[] = [];
-
-      return avaliableMoves;
+      return getQueenMoves(board, square);
     },
   },
   rook: {

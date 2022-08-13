@@ -135,6 +135,10 @@ function renderSquares(
   return { squares, board };
 }
 
+// TODO: Pass state object to every component
+// so I can stop using 64 listeners
+// and just update state of board
+
 export default function Board(props: BoardProps) {
   const chessEventEmitter = getChessEventEmitter();
 
