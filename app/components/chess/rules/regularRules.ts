@@ -29,6 +29,7 @@ const isMoveAvaliable = (
   return false;
 };
 
+// TODO: add d1 and d2, REFACTORING
 const getAvaliableMovesInLine = (
   board: InitailizedBoard,
   startingSquare: string,
@@ -68,6 +69,9 @@ const getAvaliableMovesInLine = (
 
       if (isCandidateMoveAvaliable === true) {
         avaliableMoves.push(candidateMove);
+        if (board[candidateMove] !== null) {
+          break;
+        }
         currentSquare = candidateMove;
         continue;
       } else {
@@ -76,9 +80,6 @@ const getAvaliableMovesInLine = (
     }
 
     if (direction === "col") {
-      // TODO: check if current square + directionNum to column
-      // is empty, if not check if piece has opposite color
-      // if true than add square to avaliableMoves
       const column = columnNames[columnNumber + directionNum - 1];
 
       if (column === undefined) {
@@ -99,6 +100,9 @@ const getAvaliableMovesInLine = (
 
       if (isCandidateMoveAvaliable) {
         avaliableMoves.push(candidateMove);
+        if (board[candidateMove] !== null) {
+          break;
+        }
         currentSquare = candidateMove;
         continue;
       } else {

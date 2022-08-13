@@ -17,6 +17,7 @@ export default function Square(props: SquareProps) {
   );
 
   useEffect(() => {
+    // Очень некрасиво, очень страшно, нужно думать как исправить
     props.eventEmitter.on("move", (from, to, piece, color) => {
       if (from !== props.square && to !== props.square) {
         return;
