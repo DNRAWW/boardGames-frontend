@@ -2,6 +2,13 @@ import { ChessRules, InitailizedBoard } from ".";
 import { SquareIsEmptyError } from "../errors";
 import { Colors, columnNames } from "../utils";
 
+// TODO: refactor this ->
+// const columnAndRow = square.split("");
+// const column = columnAndRow[0];
+// const row = columnAndRow[1];
+// const columnNumber = COLUMN_NUMBERS[column]
+// put them in a function (probably in utils)
+
 const COLUMN_NUMBERS: { [key: string]: number } = {
   a: 1,
   b: 2,
@@ -194,13 +201,6 @@ const directionLineFuncs = {
     return availableMoves;
   },
 };
-
-// TODO: refactor this ->
-// const columnAndRow = square.split("");
-// const column = columnAndRow[0];
-// const row = columnAndRow[1];
-// const columnNumber = COLUMN_NUMBERS[column]
-// put them in a function (probably in utils)
 
 const rowOfThreeAvaliable = (
   board: InitailizedBoard,
@@ -410,7 +410,7 @@ export const regularRules: ChessRules = {
       return avaliableMoves;
     },
   },
-  // TODO: make pawn eat
+  // TODO: refactoring
   pawn: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
       const avaliableMoves: string[] = [];
@@ -421,33 +421,54 @@ export const regularRules: ChessRules = {
         throw SquareIsEmptyError();
       }
 
-      const color = squareContent.Color;
+      const pieceColor = squareContent.Color;
 
-      const direction = color == Colors.BLACK ? -1 : 1;
-      const firstRow = color == Colors.BLACK ? "7" : "2";
+      const direction = pieceColor == Colors.BLACK ? -1 : 1;
+      const firstRow = pieceColor == Colors.BLACK ? "7" : "2";
 
       const columnAndRow = square.split("");
       const column = columnAndRow[0];
       const row = columnAndRow[1];
 
-      const rowNumber = Number(row);
+      let candidateMove = column + (Number(row) + direction);
 
-      let candidateMove = column + (rowNumber + direction);
+      if (board[candidateMove] === null) {
+        avaliableMoves.push(candidateMove);
 
-      if (board[candidateMove] !== null || board[candidateMove] === undefined) {
-        return [];
+        candidateMove = column + (Number(row) + direction * 2);
+
+        if (
+          row === firstRow &&
+          board[candidateMove] === null &&
+          board[candidateMove] !== undefined
+        ) {
+          avaliableMoves.push(candidateMove);
+        }
       }
 
-      avaliableMoves.push(candidateMove);
+      const columnLeft = columnNames[COLUMN_NUMBERS[column] - 1 - 1];
+      const columnRight = columnNames[COLUMN_NUMBERS[column] + 1 - 1];
 
-      candidateMove = column + (rowNumber + direction * 2);
+      candidateMove = columnLeft + (Number(row) + direction);
 
-      if (
-        row === firstRow &&
-        board[candidateMove] === null &&
-        board[candidateMove] !== undefined
-      ) {
-        avaliableMoves.push(candidateMove);
+      if (board[candidateMove] !== undefined) {
+        if (
+          board[candidateMove] !== null &&
+          board[candidateMove]?.Color !== pieceColor
+        ) {
+          avaliableMoves.push(candidateMove);
+        }
+      }
+
+      candidateMove = columnRight + (Number(row) + direction);
+
+      if (board[candidateMove] !== undefined) {
+        if (
+          board[candidateMove] !== null &&
+          board[candidateMove]?.Color !== pieceColor
+        ) {
+          avaliableMoves.push(candidateMove);
+        }
       }
 
       return avaliableMoves;
