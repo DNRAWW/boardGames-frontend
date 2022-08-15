@@ -1,8 +1,12 @@
-import { BadSquareNameError, BoardIsNotInitializedErorr } from "./errors";
+import {
+  BadSquareNameError,
+  BoardIsNotInitializedErorr,
+  SquareIsEmptyError,
+} from "./errors";
 import { ChessRules } from "./rules";
 import { Colors, Pieces } from "./utils";
 
-export type Board = { [key: string]: { Piece: Pieces; Color: Colors } | null };
+export type Board = { [key: string]: { piece: Pieces; color: Colors } | null };
 
 export class ChessMovement {
   // TODO: add controlled field to board squares
@@ -84,10 +88,11 @@ export class ChessMovement {
       throw BoardIsNotInitializedErorr();
     }
 
-    const temp = this.board[from];
+    if (this.board[from] === null) {
+      throw SquareIsEmptyError();
+    }
 
+    this.board[to] = this.board[from];
     this.board[from] = null;
-
-    this.board[to] = temp;
   }
 }

@@ -125,8 +125,8 @@ function renderSquares(
       board[squareName] =
         piece && pieceColor
           ? {
-              Piece: piece,
-              Color: pieceColor,
+              piece: piece,
+              color: pieceColor,
             }
           : null;
     }
@@ -135,11 +135,7 @@ function renderSquares(
   return { squares, board };
 }
 
-// TODO: Pass state object to every component
-// so I can stop using 64 listeners
-// and just update state of board
-
-export default function Board(props: BoardProps) {
+export default function BoardComponent(props: BoardProps) {
   const chessEventEmitter = getChessEventEmitter();
 
   chessEventEmitter.setMaxListeners(64);

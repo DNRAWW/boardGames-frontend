@@ -1,9 +1,8 @@
-import { Board } from "../chessMovement";
 import { Pieces, Colors } from "../utils";
 import { regularRules } from "./regularRules";
 
 export type InitailizedBoard = {
-  [key: string]: { Piece: Pieces; Color: Colors } | null;
+  [key: string]: { piece: Pieces; color: Colors } | null;
 };
 
 export type ChessRules = {

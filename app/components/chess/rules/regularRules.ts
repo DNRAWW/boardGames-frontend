@@ -28,7 +28,7 @@ const directionLineFuncs = {
     directionChange: -1 | 1
   ) => {
     const avaliableMoves: string[] = [];
-    const pieceColor: Colors = <Colors>board[startSquare]?.Color;
+    const pieceColor: Colors = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
 
@@ -74,7 +74,7 @@ const directionLineFuncs = {
     directionChange: -1 | 1
   ) => {
     const avaliableMoves: string[] = [];
-    const pieceColor: Colors = <Colors>board[startSquare]?.Color;
+    const pieceColor: Colors = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
 
@@ -122,7 +122,7 @@ const directionLineFuncs = {
     directionChange: -1 | 1
   ) => {
     const availableMoves: string[] = [];
-    const pieceColor = <Colors>board[startSquare]?.Color;
+    const pieceColor = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
 
@@ -165,7 +165,7 @@ const directionLineFuncs = {
   ) => {
     const availableMoves: string[] = [];
 
-    const pieceColor = <Colors>board[startSquare]?.Color;
+    const pieceColor = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
 
@@ -256,7 +256,7 @@ const isMoveAvaliable = (
     return true;
   }
 
-  if (board[candidateMove]?.Color !== pieceColor) {
+  if (board[candidateMove]?.color !== pieceColor) {
     return true;
   }
 
@@ -276,7 +276,7 @@ const getHalfKnightMoves = (
   const row = columnAndRow[1];
   const columnNumber = COLUMN_NUMBERS[column];
 
-  const pieceColor = <Colors>board[startSquare]?.Color;
+  const pieceColor = <Colors>board[startSquare]?.color;
 
   const candidateMoveOne =
     columnNames[columnNumber + columnChage - 1] + (Number(row) + 2);
@@ -370,7 +370,7 @@ export const regularRules: ChessRules = {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
       const avaliableMoves: string[] = [];
 
-      const pieceColor = <Colors>board[square]?.Color;
+      const pieceColor = <Colors>board[square]?.color;
       const columnAndRow = square.split("");
       const column = columnAndRow[0];
       const row = columnAndRow[1];
@@ -421,7 +421,7 @@ export const regularRules: ChessRules = {
         throw SquareIsEmptyError();
       }
 
-      const pieceColor = squareContent.Color;
+      const pieceColor = squareContent.color;
 
       const direction = pieceColor == Colors.BLACK ? -1 : 1;
       const firstRow = pieceColor == Colors.BLACK ? "7" : "2";
@@ -454,7 +454,7 @@ export const regularRules: ChessRules = {
       if (board[candidateMove] !== undefined) {
         if (
           board[candidateMove] !== null &&
-          board[candidateMove]?.Color !== pieceColor
+          board[candidateMove]?.color !== pieceColor
         ) {
           avaliableMoves.push(candidateMove);
         }
@@ -465,7 +465,7 @@ export const regularRules: ChessRules = {
       if (board[candidateMove] !== undefined) {
         if (
           board[candidateMove] !== null &&
-          board[candidateMove]?.Color !== pieceColor
+          board[candidateMove]?.color !== pieceColor
         ) {
           avaliableMoves.push(candidateMove);
         }
