@@ -229,7 +229,6 @@ const isMoveAvaliable = (
   return false;
 };
 
-// TODO: refactoring
 const getHalfKnightMoves = (
   board: InitailizedBoard,
   startSquare: string,
@@ -241,50 +240,35 @@ const getHalfKnightMoves = (
 
   const pieceColor = <Colors>board[startSquare]?.color;
 
-  const candidateMoveOne =
-    columnNames[columnNumber + columnChage] + (Number(row) + 2);
-
-  if (
-    board[candidateMoveOne] !== undefined &&
-    isMoveAvaliable(board, candidateMoveOne, pieceColor)
-  ) {
-    avaliableMoves.push(candidateMoveOne);
-  }
+  const candidateMoveOne = columnNames[columnNumber + columnChage] + (row + 2);
 
   const candidateMoveTwo =
-    columnNames[columnNumber + 2 * columnChage] + (Number(row) + 1);
-
-  if (
-    board[candidateMoveTwo] !== undefined &&
-    isMoveAvaliable(board, candidateMoveTwo, pieceColor)
-  ) {
-    avaliableMoves.push(candidateMoveTwo);
-  }
+    columnNames[columnNumber + 2 * columnChage] + (row + 1);
 
   const candidateMoveThree =
-    columnNames[columnNumber + 2 * columnChage] + (Number(row) - 1);
+    columnNames[columnNumber + 2 * columnChage] + (row - 1);
 
-  if (
-    board[candidateMoveThree] !== undefined &&
-    isMoveAvaliable(board, candidateMoveThree, pieceColor)
-  ) {
-    avaliableMoves.push(candidateMoveThree);
-  }
+  const candidateMoveFour = columnNames[columnNumber + columnChage] + (row - 2);
 
-  const candidateMoveFour =
-    columnNames[columnNumber + columnChage] + (Number(row) - 2);
+  const candidateMoves: string[] = [
+    candidateMoveOne,
+    candidateMoveTwo,
+    candidateMoveThree,
+    candidateMoveFour,
+  ];
 
-  if (
-    board[candidateMoveFour] !== undefined &&
-    isMoveAvaliable(board, candidateMoveFour, pieceColor)
-  ) {
-    avaliableMoves.push(candidateMoveFour);
-  }
+  candidateMoves.forEach((candidate) => {
+    if (
+      board[candidate] !== undefined &&
+      isMoveAvaliable(board, candidate, pieceColor)
+    ) {
+      avaliableMoves.push(candidate);
+    }
+  });
 
   return avaliableMoves;
 };
 
-// TODO: REFACTORING
 const getAvaliableMovesInLine = (
   board: InitailizedBoard,
   startSquare: string,
@@ -371,7 +355,6 @@ export const regularRules: ChessRules = {
       return avaliableMoves;
     },
   },
-  // TODO: refactoring
   pawn: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
       const avaliableMoves: string[] = [];
