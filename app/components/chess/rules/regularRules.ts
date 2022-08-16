@@ -1,6 +1,6 @@
 import { ChessRules, InitailizedBoard } from ".";
 import { SquareIsEmptyError } from "../errors";
-import { Colors, columnNames } from "../utils";
+import { Colors, columnNames, COLUMN_NUMBERS } from "../utils";
 
 // TODO: refactor this ->
 // const columnAndRow = square.split("");
@@ -8,17 +8,6 @@ import { Colors, columnNames } from "../utils";
 // const row = columnAndRow[1];
 // const columnNumber = COLUMN_NUMBERS[column]
 // put them in a function (probably in utils)
-
-const COLUMN_NUMBERS: { [key: string]: number } = {
-  a: 1,
-  b: 2,
-  c: 3,
-  d: 4,
-  e: 5,
-  f: 6,
-  g: 7,
-  h: 8,
-};
 
 // TODO: refactoring
 const directionLineFuncs = {
@@ -83,7 +72,7 @@ const directionLineFuncs = {
 
       const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
       const row = parseInt(columnAndRow[1]);
-      const column = columnNames[columnNumber + directionChange - 1];
+      const column = columnNames[columnNumber + directionChange];
 
       if (column === undefined) {
         break;
@@ -130,7 +119,7 @@ const directionLineFuncs = {
       const columnAndRow = currentSquare.split("");
       const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
       const row = parseInt(columnAndRow[1]) + 1;
-      const column = columnNames[columnNumber + directionChange - 1];
+      const column = columnNames[columnNumber + directionChange];
 
       if (column === undefined) {
         break;
@@ -173,7 +162,7 @@ const directionLineFuncs = {
       const columnAndRow = currentSquare.split("");
       const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
       const row = parseInt(columnAndRow[1]) - 1;
-      const column = columnNames[columnNumber - directionChange - 1];
+      const column = columnNames[columnNumber - directionChange];
 
       if (column === undefined) {
         break;
@@ -217,7 +206,7 @@ const rowOfThreeAvaliable = (
 
   const candidateRow = Number(row) + rowChange;
 
-  let candidateMove = columnNames[columnNumber - 1 - 1] + candidateRow;
+  let candidateMove = columnNames[columnNumber - 1] + candidateRow;
 
   for (let c = 0; c < 3; c++) {
     if (candidateMove === undefined) {
@@ -241,7 +230,7 @@ const rowOfThreeAvaliable = (
       avaliableMoves.push(candidateMove);
     }
 
-    candidateMove = columnNames[columnNumber + 1 - 1] + row;
+    candidateMove = columnNames[columnNumber + 1] + row;
   }
 
   return avaliableMoves;
@@ -279,7 +268,7 @@ const getHalfKnightMoves = (
   const pieceColor = <Colors>board[startSquare]?.color;
 
   const candidateMoveOne =
-    columnNames[columnNumber + columnChage - 1] + (Number(row) + 2);
+    columnNames[columnNumber + columnChage] + (Number(row) + 2);
 
   if (
     board[candidateMoveOne] !== undefined &&
@@ -289,7 +278,7 @@ const getHalfKnightMoves = (
   }
 
   const candidateMoveTwo =
-    columnNames[columnNumber + 2 * columnChage - 1] + (Number(row) + 1);
+    columnNames[columnNumber + 2 * columnChage] + (Number(row) + 1);
 
   if (
     board[candidateMoveTwo] !== undefined &&
@@ -299,7 +288,7 @@ const getHalfKnightMoves = (
   }
 
   const candidateMoveThree =
-    columnNames[columnNumber + 2 * columnChage - 1] + (Number(row) - 1);
+    columnNames[columnNumber + 2 * columnChage] + (Number(row) - 1);
 
   if (
     board[candidateMoveThree] !== undefined &&
@@ -309,7 +298,7 @@ const getHalfKnightMoves = (
   }
 
   const candidateMoveFour =
-    columnNames[columnNumber + columnChage - 1] + (Number(row) - 2);
+    columnNames[columnNumber + columnChage] + (Number(row) - 2);
 
   if (
     board[candidateMoveFour] !== undefined &&
@@ -375,8 +364,8 @@ export const regularRules: ChessRules = {
       const column = columnAndRow[0];
       const row = columnAndRow[1];
 
-      const leftSquare = columnNames[COLUMN_NUMBERS[column] - 1 - 1] + row;
-      const rightSquare = columnNames[COLUMN_NUMBERS[column] + 1 - 1] + row;
+      const leftSquare = columnNames[COLUMN_NUMBERS[column] - 1] + row;
+      const rightSquare = columnNames[COLUMN_NUMBERS[column] + 1] + row;
 
       const topRow = rowOfThreeAvaliable(board, square, 1, pieceColor);
       const bottomRow = rowOfThreeAvaliable(board, square, -1, pieceColor);
@@ -446,8 +435,8 @@ export const regularRules: ChessRules = {
         }
       }
 
-      const columnLeft = columnNames[COLUMN_NUMBERS[column] - 1 - 1];
-      const columnRight = columnNames[COLUMN_NUMBERS[column] + 1 - 1];
+      const columnLeft = columnNames[COLUMN_NUMBERS[column] - 1];
+      const columnRight = columnNames[COLUMN_NUMBERS[column] + 1];
 
       candidateMove = columnLeft + (Number(row) + direction);
 

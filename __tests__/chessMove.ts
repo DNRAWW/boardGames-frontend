@@ -12,39 +12,41 @@ const initChessMovement = (board: Board) => {
   return chessMovement;
 };
 
-test("Right chess move", () => {
-  const board: Board = {
-    a3: null,
-    a2: {
-      piece: Pieces.PAWN,
-      color: Colors.WHITE,
-    },
-  };
-  const chessMovement = initChessMovement(board);
+describe("Сhess movement class", () => {
+  test("Make right chess move", () => {
+    const board: Board = {
+      a3: null,
+      a2: {
+        piece: Pieces.PAWN,
+        color: Colors.WHITE,
+      },
+    };
+    const chessMovement = initChessMovement(board);
 
-  chessMovement.move("a2", "a3");
+    chessMovement.move("a2", "a3");
 
-  expect(JSON.stringify(chessMovement.getSquarePiece("a3"))).toBe(
-    JSON.stringify({
-      piece: Pieces.PAWN,
-      color: Colors.WHITE,
-    })
-  );
-});
+    expect(JSON.stringify(chessMovement.getSquarePiece("a3"))).toBe(
+      JSON.stringify({
+        piece: Pieces.PAWN,
+        color: Colors.WHITE,
+      })
+    );
+  });
 
-test("Chess move from null", () => {
-  const board: Board = {
-    a3: null,
-    a2: {
-      piece: Pieces.PAWN,
-      color: Colors.WHITE,
-    },
-  };
-  const chessMovement = initChessMovement(board);
+  test("Make wrong chess move", () => {
+    const board: Board = {
+      a3: null,
+      a2: {
+        piece: Pieces.PAWN,
+        color: Colors.WHITE,
+      },
+    };
+    const chessMovement = initChessMovement(board);
 
-  expect(() => chessMovement.move("a3", "a2")).toThrowError(
-    SquareIsEmptyError()
-  );
+    expect(() => chessMovement.move("a3", "a2")).toThrowError(
+      SquareIsEmptyError()
+    );
+  });
 });
 
 export {};

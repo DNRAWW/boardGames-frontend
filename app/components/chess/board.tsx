@@ -1,11 +1,4 @@
-import {
-  Colors,
-  columnNames,
-  fenToColor,
-  fenToPiece,
-  formatColumns,
-  Pieces,
-} from "./utils";
+import { Colors, columnNames, Pieces } from "./utils";
 import Square from "./square";
 import Piece from "./piece";
 import { ChessEvents, getChessEventEmitter } from "./chessEventEmitter";
@@ -13,6 +6,7 @@ import TypedEventEmitter from "typed-emitter";
 import { BadInputError, InvalidFenError } from "./errors";
 import { Board } from "./chessMovement";
 import { ChessRules } from "./rules";
+import { formatColumns, fenToPiece, fenToColor } from "./fenFunctions";
 
 interface BoardProps {
   fen: string;
@@ -102,7 +96,7 @@ function renderSquares(
           throw InvalidFenError(fen);
         }
       }
-      const squareName = columnNames[column - 1] + row;
+      const squareName = columnNames[column] + row;
 
       squares[squareName] = (
         <Square
