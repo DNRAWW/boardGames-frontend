@@ -1,15 +1,7 @@
 import { ChessRules, InitailizedBoard } from ".";
 import { SquareIsEmptyError } from "../errors";
-import { Colors, columnNames, COLUMN_NUMBERS } from "../utils";
+import { Colors, columnNames, COLUMN_NUMBERS, getSquareInfo } from "../utils";
 
-// TODO: refactor this ->
-// const columnAndRow = square.split("");
-// const column = columnAndRow[0];
-// const row = columnAndRow[1];
-// const columnNumber = COLUMN_NUMBERS[column]
-// put them in a function (probably in utils)
-
-// TODO: refactoring
 const directionLineFuncs = {
   row: (
     board: InitailizedBoard,
@@ -22,15 +14,11 @@ const directionLineFuncs = {
     let currentSquare = startSquare;
 
     for (let c = 0; c < 8; c++) {
-      const columnAndRow = currentSquare.split("");
+      const { columnName, row } = getSquareInfo(currentSquare);
 
-      const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
-      const row = parseInt(columnAndRow[1]);
-
-      const column = columnAndRow[0];
       const nextRow = row + directionChange;
 
-      const candidateMove = column + nextRow;
+      const candidateMove = columnName + nextRow;
 
       if (board[candidateMove] === undefined) {
         break;
@@ -68,17 +56,15 @@ const directionLineFuncs = {
     let currentSquare = startSquare;
 
     for (let c = 0; c < 8; c++) {
-      const columnAndRow = currentSquare.split("");
+      const { columnNumber, row } = getSquareInfo(currentSquare);
 
-      const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
-      const row = parseInt(columnAndRow[1]);
-      const column = columnNames[columnNumber + directionChange];
+      const nextColumn = columnNames[columnNumber + directionChange];
 
-      if (column === undefined) {
+      if (nextColumn === undefined) {
         break;
       }
 
-      const candidateMove = column + row;
+      const candidateMove = nextColumn + row;
 
       if (board[candidateMove] === undefined) {
         break;
@@ -116,12 +102,10 @@ const directionLineFuncs = {
     let currentSquare = startSquare;
 
     for (let c = 0; c < 8; c++) {
-      const columnAndRow = currentSquare.split("");
-      const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
-      const row = parseInt(columnAndRow[1]) + 1;
-      const column = columnNames[columnNumber + directionChange];
+      const { columnNumber, row } = getSquareInfo(currentSquare);
+      const nextColumn = columnNames[columnNumber + directionChange];
 
-      if (column === undefined) {
+      if (nextColumn === undefined) {
         break;
       }
 
@@ -129,7 +113,7 @@ const directionLineFuncs = {
         break;
       }
 
-      const candidateMove = column + row;
+      const candidateMove = nextColumn + (row + 1);
 
       if (isMoveAvaliable(board, candidateMove, pieceColor)) {
         availableMoves.push(candidateMove);
@@ -159,20 +143,19 @@ const directionLineFuncs = {
     let currentSquare = startSquare;
 
     for (let c = 0; c < 8; c++) {
-      const columnAndRow = currentSquare.split("");
-      const columnNumber = COLUMN_NUMBERS[columnAndRow[0]];
-      const row = parseInt(columnAndRow[1]) - 1;
-      const column = columnNames[columnNumber - directionChange];
+      const { columnNumber, row } = getSquareInfo(currentSquare);
+      const nextRow = row - 1;
+      const nextColumn = columnNames[columnNumber - directionChange];
 
-      if (column === undefined) {
+      if (nextColumn === undefined) {
         break;
       }
 
-      if (row > 8 || row < 1) {
+      if (nextRow > 8 || nextRow < 1) {
         break;
       }
 
-      const candidateMove = column + row;
+      const candidateMove = nextColumn + nextRow;
 
       if (isMoveAvaliable(board, candidateMove, pieceColor)) {
         availableMoves.push(candidateMove);
@@ -199,10 +182,7 @@ const rowOfThreeAvaliable = (
 ) => {
   const avaliableMoves: string[] = [];
 
-  const columnAndRow = startSquare.split("");
-  const column = columnAndRow[0];
-  const row = columnAndRow[1];
-  const columnNumber = COLUMN_NUMBERS[column];
+  const { columnNumber, row } = getSquareInfo(startSquare);
 
   const candidateRow = Number(row) + rowChange;
 
@@ -213,16 +193,13 @@ const rowOfThreeAvaliable = (
       continue;
     }
 
-    const columnAndRow = candidateMove.split("");
-    const column = columnAndRow[0];
-    const row = columnAndRow[1];
-    const columnNumber = COLUMN_NUMBERS[column];
-
-    if (columnNumber === undefined) {
+    if (board[candidateMove] === undefined) {
       continue;
     }
 
-    if (board[candidateMove] === undefined) {
+    const { columnNumber, row } = getSquareInfo(candidateMove);
+
+    if (columnNumber === undefined) {
       continue;
     }
 
@@ -260,10 +237,7 @@ const getHalfKnightMoves = (
 ) => {
   const avaliableMoves: string[] = [];
 
-  const columnAndRow = startSquare.split("");
-  const column = columnAndRow[0];
-  const row = columnAndRow[1];
-  const columnNumber = COLUMN_NUMBERS[column];
+  const { columnNumber, row } = getSquareInfo(startSquare);
 
   const pieceColor = <Colors>board[startSquare]?.color;
 
@@ -360,12 +334,10 @@ export const regularRules: ChessRules = {
       const avaliableMoves: string[] = [];
 
       const pieceColor = <Colors>board[square]?.color;
-      const columnAndRow = square.split("");
-      const column = columnAndRow[0];
-      const row = columnAndRow[1];
+      const { columnNumber, row } = getSquareInfo(square);
 
-      const leftSquare = columnNames[COLUMN_NUMBERS[column] - 1] + row;
-      const rightSquare = columnNames[COLUMN_NUMBERS[column] + 1] + row;
+      const leftSquare = columnNames[columnNumber - 1] + row;
+      const rightSquare = columnNames[columnNumber + 1] + row;
 
       const topRow = rowOfThreeAvaliable(board, square, 1, pieceColor);
       const bottomRow = rowOfThreeAvaliable(board, square, -1, pieceColor);
@@ -413,18 +385,16 @@ export const regularRules: ChessRules = {
       const pieceColor = squareContent.color;
 
       const direction = pieceColor == Colors.BLACK ? -1 : 1;
-      const firstRow = pieceColor == Colors.BLACK ? "7" : "2";
+      const firstRow = pieceColor == Colors.BLACK ? 7 : 2;
 
-      const columnAndRow = square.split("");
-      const column = columnAndRow[0];
-      const row = columnAndRow[1];
+      const { columnName, columnNumber, row } = getSquareInfo(square);
 
-      let candidateMove = column + (Number(row) + direction);
+      let candidateMove = columnName + (row + direction);
 
       if (board[candidateMove] === null) {
         avaliableMoves.push(candidateMove);
 
-        candidateMove = column + (Number(row) + direction * 2);
+        candidateMove = columnName + (row + direction * 2);
 
         if (
           row === firstRow &&
@@ -435,10 +405,10 @@ export const regularRules: ChessRules = {
         }
       }
 
-      const columnLeft = columnNames[COLUMN_NUMBERS[column] - 1];
-      const columnRight = columnNames[COLUMN_NUMBERS[column] + 1];
+      const columnLeft = columnNames[columnNumber - 1];
+      const columnRight = columnNames[columnNumber + 1];
 
-      candidateMove = columnLeft + (Number(row) + direction);
+      candidateMove = columnLeft + (row + direction);
 
       if (board[candidateMove] !== undefined) {
         if (
@@ -449,7 +419,7 @@ export const regularRules: ChessRules = {
         }
       }
 
-      candidateMove = columnRight + (Number(row) + direction);
+      candidateMove = columnRight + (row + direction);
 
       if (board[candidateMove] !== undefined) {
         if (

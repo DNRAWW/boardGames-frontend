@@ -35,3 +35,20 @@ export const COLUMN_NUMBERS: { [key: string]: number } = {
   g: 7,
   h: 8,
 };
+
+export function getSquareInfo(square: string): {
+  columnName: string;
+  columnNumber: number;
+  row: number;
+} {
+  const columnAndRow = square.split("");
+  const column = columnAndRow[0];
+  const row = columnAndRow[1];
+  const columnNumber = COLUMN_NUMBERS[column];
+
+  return {
+    columnName: column,
+    columnNumber: columnNumber,
+    row: Number(row),
+  };
+}
