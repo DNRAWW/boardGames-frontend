@@ -130,20 +130,26 @@ function renderSquares(
 }
 
 export default function BoardComponent(props: BoardProps) {
-  const chessEventEmitter = getChessEventEmitter();
-
-  const { squares, board } = renderSquares(
-    props.fen,
-    props.perspective,
-    chessEventEmitter
-  );
-
-  const [squaresState, setSquares] = useState(Object.values(squares));
+  const [squaresState, setSquares] = useState<JSX.Element[]>([]);
 
   useEffect(() => {
+    const chessEventEmitter = getChessEventEmitter();
+
+    const { squares, board } = renderSquares(
+      props.fen,
+      props.perspective,
+      chessEventEmitter
+    );
+
+    setSquares(Object.values(squares));
+
     chessEventEmitter.on("move", (from, to, piece, color) => {
       const fromSquare = squares[from];
       const toSquare = squares[to];
+
+      if (fromSquare === undefined || toSquare === undefined) {
+        throw BadInputError();
+      }
 
       squares[from] = (
         <Square
@@ -172,9 +178,9 @@ export default function BoardComponent(props: BoardProps) {
 
       setSquares(Object.values(squares));
     });
-  }, []);
 
-  chessEventEmitter.emit("initChessMovement", board, props.rules);
+    chessEventEmitter.emit("initChessMovement", board, props.rules);
+  }, []);
 
   return <div className="grid grid-cols-chess gap-0">{squaresState}</div>;
 }
