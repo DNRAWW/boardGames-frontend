@@ -7,6 +7,7 @@ import { BadInputError, InvalidFenError } from "./errors";
 import { Board } from "./chessMovement";
 import { ChessRules } from "./rules";
 import { formatColumns, fenToPiece, fenToColor } from "./fenFunctions";
+import { useEffect, useState } from "react";
 
 interface BoardProps {
   fen: string;
@@ -14,7 +15,6 @@ interface BoardProps {
   rules: ChessRules;
 }
 
-// TODO: REFACTORING
 function renderSquares(
   fen: string,
   perspective: Colors,
@@ -132,17 +132,49 @@ function renderSquares(
 export default function BoardComponent(props: BoardProps) {
   const chessEventEmitter = getChessEventEmitter();
 
-  chessEventEmitter.setMaxListeners(64);
-
   const { squares, board } = renderSquares(
     props.fen,
     props.perspective,
     chessEventEmitter
   );
 
+  const [squaresState, setSquares] = useState(Object.values(squares));
+
+  useEffect(() => {
+    chessEventEmitter.on("move", (from, to, piece, color) => {
+      const fromSquare = squares[from];
+      const toSquare = squares[to];
+
+      squares[from] = (
+        <Square
+          color={fromSquare.props.color}
+          eventEmitter={chessEventEmitter}
+          square={from}
+          key={from}
+        ></Square>
+      );
+
+      squares[to] = (
+        <Square
+          color={toSquare.props.color}
+          eventEmitter={chessEventEmitter}
+          square={to}
+          key={to}
+        >
+          <Piece
+            color={color}
+            eventEmitter={chessEventEmitter}
+            piece={piece}
+            square={to}
+          ></Piece>
+        </Square>
+      );
+
+      setSquares(Object.values(squares));
+    });
+  }, []);
+
   chessEventEmitter.emit("initChessMovement", board, props.rules);
 
-  return (
-    <div className="grid grid-cols-chess gap-0">{Object.values(squares)}</div>
-  );
+  return <div className="grid grid-cols-chess gap-0">{squaresState}</div>;
 }

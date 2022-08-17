@@ -12,37 +12,6 @@ interface SquareProps {
 }
 
 export default function Square(props: SquareProps) {
-  const [currentPiece, setPiece] = useState<JSX.Element | undefined>(
-    props.children
-  );
-
-  useEffect(() => {
-    // Очень некрасиво, очень страшно, нужно думать как исправить
-    // Через передачу объекта useState из Board не работает
-    props.eventEmitter.on("move", (from, to, piece, color) => {
-      if (from !== props.square && to !== props.square) {
-        return;
-      }
-
-      if (from == to) {
-        return;
-      }
-
-      if (props.square == from) {
-        setPiece(undefined);
-      } else {
-        setPiece(
-          <Piece
-            piece={piece}
-            color={color}
-            square={props.square}
-            eventEmitter={props.eventEmitter}
-          ></Piece>
-        );
-      }
-    });
-  }, []);
-
   return (
     <div
       id={`square_` + props.square}
@@ -51,7 +20,7 @@ export default function Square(props: SquareProps) {
         (props.color == Colors.BLACK ? `bg-blue-400` : "bg-blue-300")
       }
       onClick={() => {
-        if (currentPiece !== undefined) {
+        if (props.children !== undefined) {
           return;
         }
 
@@ -61,7 +30,7 @@ export default function Square(props: SquareProps) {
         });
       }}
     >
-      {currentPiece}
+      {props.children}
     </div>
   );
 }
