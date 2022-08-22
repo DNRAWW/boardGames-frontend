@@ -5,8 +5,21 @@ import {
 } from "./errors";
 import { ChessRules } from "./rules";
 import { Colors, Pieces } from "./utils";
+import TypedEmitter from "typed-emitter";
+import { BoardEvents, ChessEvents } from "./chessEventEmitter";
 
-export type Board = { [key: string]: { piece: Pieces; color: Colors } | null };
+export type Board = {
+  [key: string]: { piece: Pieces; color: Colors } | null;
+} & BoardExtras;
+
+export type BoardExtras = {
+  lastMove: {
+    from: string;
+    to: string;
+    piece: Pieces;
+    color: Colors;
+  } | null;
+};
 
 export class ChessMovement {
   // TODO: add controlled field to board squares
@@ -14,6 +27,12 @@ export class ChessMovement {
   // is dangerous for the king
   private board: Board | null = null;
   private rules: ChessRules | null = null;
+
+  private readonly eventEmitter: TypedEmitter<BoardEvents>;
+
+  constructor(eventEmitter: TypedEmitter<ChessEvents>) {
+    this.eventEmitter = eventEmitter;
+  }
 
   private selectedPiece: {
     square: string;
@@ -88,11 +107,51 @@ export class ChessMovement {
       throw BoardIsNotInitializedErorr();
     }
 
-    if (this.board[from] === null) {
+    const fromContent = this.board[from];
+    const toContent = this.board[to];
+
+    if (fromContent === null) {
       throw SquareIsEmptyError();
     }
 
-    this.board[to] = this.board[from];
+    if (fromContent === undefined || toContent === undefined) {
+      console.error("from:", fromContent, "\nto:", toContent);
+      throw BadSquareNameError();
+    }
+
+    // TODO: check if piece is king, and going over 2 squares (column + 2 or - 2)
+    if (false) {
+      this.castle(from, to);
+      return;
+    }
+
+    // TODO: check if piece is pawn, and from is on the right row, and column changes, and to is null
+    if (false) {
+      this.enPassant(from, to);
+      return;
+    }
+
+    this.board[to] = fromContent;
     this.board[from] = null;
+
+    this.eventEmitter.emit(
+      "move",
+      from,
+      to,
+      fromContent.piece,
+      fromContent.color
+    );
+  }
+
+  castle(from: string, to: string) {
+    return;
+  }
+
+  enPassant(from: string, to: string) {
+    return;
+  }
+
+  promote(from: string, to: string) {
+    return;
   }
 }

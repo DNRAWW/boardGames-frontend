@@ -5,9 +5,9 @@ import { ChessRules } from "./rules";
 import { Pieces, Colors } from "./utils";
 
 export function getChessEventEmitter() {
-  const chessMovement = new ChessMovement();
-
   const chessEventEmitter = new EventEmitter() as TypedEmitter<ChessEvents>;
+
+  const chessMovement = new ChessMovement(chessEventEmitter);
 
   chessEventEmitter.on("pieceClicked", (data) => {
     const selected = chessMovement.getSelectedPiece();
@@ -37,14 +37,6 @@ export function getChessEventEmitter() {
 
     if (isMoveAvaliable) {
       chessMovement.move(selected.square, data.square);
-
-      chessEventEmitter.emit(
-        "move",
-        selected.square,
-        data.square,
-        selected.piece,
-        selected.color
-      );
     }
 
     chessMovement.unselectPiece();
@@ -68,14 +60,6 @@ export function getChessEventEmitter() {
 
     if (isMoveAvaliable) {
       chessMovement.move(selected.square, data.square);
-
-      chessEventEmitter.emit(
-        "move",
-        selected.square,
-        data.square,
-        selected.piece,
-        selected.color
-      );
     }
 
     chessMovement.unselectPiece();
@@ -89,14 +73,16 @@ export function getChessEventEmitter() {
   return chessEventEmitter;
 }
 
-export type ChessEvents = PieceEvents &
-  SquareEvents & {
-    initChessMovement: (board: Board, rules: ChessRules) => void;
-  };
+export type ChessEvents = PieceEvents & SquareEvents & BoardEvents;
+
+export type BoardEvents = {
+  initChessMovement: (board: Board, rules: ChessRules) => void;
+  move: (from: string, to: string, piece: Pieces, color: Colors) => void;
+  emptySquare: (square: string) => void;
+};
 
 export type SquareEvents = {
   squareClicked: (data: { square: string; color: Colors }) => void;
-  move: (from: string, to: string, piece: Pieces, color: Colors) => void;
 };
 
 export type PieceEvents = {

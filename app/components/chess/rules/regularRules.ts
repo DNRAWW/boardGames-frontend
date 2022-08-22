@@ -115,6 +115,10 @@ const directionLineFuncs = {
 
       const candidateMove = nextColumn + (row + 1);
 
+      if (board[candidateMove] === undefined) {
+        break;
+      }
+
       if (isMoveAvaliable(board, candidateMove, pieceColor)) {
         availableMoves.push(candidateMove);
 
@@ -137,7 +141,6 @@ const directionLineFuncs = {
     directionChange: -1 | 1
   ) => {
     const availableMoves: string[] = [];
-
     const pieceColor = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
@@ -156,6 +159,10 @@ const directionLineFuncs = {
       }
 
       const candidateMove = nextColumn + nextRow;
+
+      if (board[candidateMove] === undefined) {
+        break;
+      }
 
       if (isMoveAvaliable(board, candidateMove, pieceColor)) {
         availableMoves.push(candidateMove);
@@ -312,6 +319,7 @@ export const regularRules: ChessRules = {
       return avaliableMoves;
     },
   },
+  // TODO: castling
   // TODO: check if any of the moves are dangerous
   king: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
@@ -355,6 +363,7 @@ export const regularRules: ChessRules = {
       return avaliableMoves;
     },
   },
+  // TODO: enPassant
   pawn: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
       const avaliableMoves: string[] = [];

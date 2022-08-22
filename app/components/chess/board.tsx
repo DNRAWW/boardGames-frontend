@@ -1,13 +1,17 @@
 import { Colors, columnNames, Pieces } from "./utils";
 import Square from "./square";
 import Piece from "./piece";
-import { ChessEvents, getChessEventEmitter } from "./chessEventEmitter";
+import {
+  ChessEvents,
+  getChessEventEmitter,
+  SquareEvents,
+} from "./chessEventEmitter";
 import TypedEventEmitter from "typed-emitter";
-import { BadInputError, InvalidFenError } from "./errors";
+import { BadInputError, BadSquareNameError, InvalidFenError } from "./errors";
 import { Board } from "./chessMovement";
 import { ChessRules } from "./rules";
 import { formatColumns, fenToPiece, fenToColor } from "./fenFunctions";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface BoardProps {
   fen: string;
@@ -51,7 +55,7 @@ function renderSquares(
   const rows = fenSections[0].split("/").reverse();
 
   const squares: { [key: string]: JSX.Element } = {};
-  const board: Board = {};
+  const board: Board = { lastMove: null };
 
   const renderDone = (row: number) => {
     if (perspective === Colors.WHITE) {
@@ -148,7 +152,8 @@ export default function BoardComponent(props: BoardProps) {
       const toSquare = squares[to];
 
       if (fromSquare === undefined || toSquare === undefined) {
-        throw BadInputError();
+        console.error("fromSquare:", fromSquare, "\ntoSquare:", toSquare);
+        throw BadSquareNameError();
       }
 
       squares[from] = (
@@ -180,6 +185,21 @@ export default function BoardComponent(props: BoardProps) {
     });
 
     chessEventEmitter.emit("initChessMovement", board, props.rules);
+
+    chessEventEmitter.on("emptySquare", (square) => {
+      const squareContent = squares[square];
+
+      squares[square] = (
+        <Square
+          color={squareContent.props.color}
+          eventEmitter={chessEventEmitter}
+          square={square}
+          key={square}
+        ></Square>
+      );
+
+      setSquares(Object.values(squares));
+    });
   }, []);
 
   return <div className="grid grid-cols-chess gap-0">{squaresState}</div>;
