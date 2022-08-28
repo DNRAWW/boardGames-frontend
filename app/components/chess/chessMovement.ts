@@ -4,12 +4,12 @@ import {
   SquareIsEmptyError,
 } from "./errors";
 import { ChessRules } from "./rules";
-import { Colors, Pieces } from "./utils";
+import { Colors, getSquareInfo, Pieces } from "./utils";
 import TypedEmitter from "typed-emitter";
 import { BoardEvents, ChessEvents } from "./chessEventEmitter";
 
 export type Board = {
-  [key: string]: { piece: Pieces; color: Colors } | null;
+  [key: string]: { piece: Pieces; color: Colors; moved?: boolean } | null;
 } & BoardExtras;
 
 export type BoardExtras = {
@@ -20,6 +20,8 @@ export type BoardExtras = {
     color: Colors;
   } | null;
 };
+
+export type PieceOnBoard = { piece: Pieces; color: Colors; moved?: boolean };
 
 export class ChessMovement {
   // TODO: add controlled field to board squares
@@ -58,16 +60,22 @@ export class ChessMovement {
       : this.isWhiteKingInDanger;
   }
 
-  selectPiece(square: string, piece: Pieces, color: Colors) {
+  selectPiece(square: string) {
     if (!this.board || !this.rules) {
       throw BoardIsNotInitializedErorr();
     }
 
-    if (this.board[square] === undefined) {
+    const piece = this.board[square];
+
+    if (piece === undefined) {
       throw BadSquareNameError();
     }
 
-    const avaliableMoves = this.rules[piece].getAvaliableMoves(
+    if (piece === null) {
+      throw SquareIsEmptyError();
+    }
+
+    const avaliableMoves = this.rules[piece.piece].getAvaliableMoves(
       this.board,
       square
     );
@@ -76,8 +84,8 @@ export class ChessMovement {
 
     this.selectedPiece = {
       square: square,
-      piece: piece,
-      color: color,
+      piece: piece.piece,
+      color: piece.color,
       avaliableMoves: avaliableMoves,
     };
   }
@@ -102,6 +110,7 @@ export class ChessMovement {
     return this.board[square];
   }
 
+  // TODO: Refactoring, moving should not repeat in castle and enPassant
   move(from: string, to: string) {
     if (!this.board || !this.rules) {
       throw BoardIsNotInitializedErorr();
@@ -109,6 +118,9 @@ export class ChessMovement {
 
     const fromContent = this.board[from];
     const toContent = this.board[to];
+
+    const fromSquare = getSquareInfo(from);
+    const toSquare = getSquareInfo(to);
 
     if (fromContent === null) {
       throw SquareIsEmptyError();
@@ -119,20 +131,45 @@ export class ChessMovement {
       throw BadSquareNameError();
     }
 
-    // TODO: check if piece is king, and going over 2 squares (column + 2 or - 2)
-    if (false) {
+    if (
+      fromContent.piece === Pieces.KING &&
+      (fromSquare.columnNumber + 2 == toSquare.columnNumber ||
+        fromSquare.columnNumber - 2 == toSquare.columnNumber)
+    ) {
       this.castle(from, to);
       return;
     }
 
-    // TODO: check if piece is pawn, and from is on the right row, and column changes, and to is null
-    if (false) {
+    const enPassantRow = fromContent.color === Colors.BLACK ? 4 : 5;
+
+    if (
+      fromContent.piece === Pieces.PAWN &&
+      fromSquare.row === enPassantRow &&
+      fromSquare.columnName !== toSquare.columnName &&
+      toContent === null
+    ) {
       this.enPassant(from, to);
       return;
     }
 
     this.board[to] = fromContent;
     this.board[from] = null;
+
+    this.board.lastMove = {
+      color: fromContent.color,
+      from: from,
+      to: to,
+      piece: fromContent.piece,
+    };
+
+    if (
+      (fromContent.piece === Pieces.ROOK ||
+        fromContent.piece === Pieces.KING) &&
+      fromContent.moved === undefined
+    ) {
+      const pieceToChange = <PieceOnBoard>this.board[to];
+      pieceToChange.moved = true;
+    }
 
     this.eventEmitter.emit(
       "move",
@@ -143,15 +180,69 @@ export class ChessMovement {
     );
   }
 
-  castle(from: string, to: string) {
+  private castle(from: string, to: string) {
+    if (!this.board || !this.rules) {
+      throw BoardIsNotInitializedErorr();
+    }
+
+    const fromContent = <PieceOnBoard>this.board[from];
+
+    // TODO: castle
+
+    this.board.lastMove = {
+      color: fromContent.color,
+      from: from,
+      to: to,
+      piece: fromContent.piece,
+    };
+
     return;
   }
 
-  enPassant(from: string, to: string) {
+  private enPassant(from: string, to: string) {
+    if (!this.board || !this.rules) {
+      throw BoardIsNotInitializedErorr();
+    }
+
+    const fromContent = <PieceOnBoard>this.board[from];
+
+    const direction = fromContent.color === Colors.BLACK ? -1 : 1;
+
+    this.board[to] = this.board[from];
+    this.board[from] = null;
+
+    const { columnName, row } = getSquareInfo(to);
+
+    const squareToEmpty = columnName + (row - direction);
+
+    this.board[squareToEmpty] = null;
+
+    this.eventEmitter.emit("emptySquare", squareToEmpty);
+
+    this.eventEmitter.emit(
+      "move",
+      from,
+      to,
+      fromContent.piece,
+      fromContent.color
+    );
+
+    this.board.lastMove = {
+      color: fromContent.color,
+      from: from,
+      to: to,
+      piece: fromContent.piece,
+    };
+
     return;
   }
 
   promote(from: string, to: string) {
+    if (!this.board || !this.rules) {
+      throw BoardIsNotInitializedErorr();
+    }
+
+    console.log("promote");
     return;
   }
 }

@@ -13,7 +13,7 @@ export function getChessEventEmitter() {
     const selected = chessMovement.getSelectedPiece();
 
     if (!selected) {
-      chessMovement.selectPiece(data.square, data.piece, data.color);
+      chessMovement.selectPiece(data.square);
       return;
     }
 
@@ -21,8 +21,8 @@ export function getChessEventEmitter() {
       return;
     }
 
-    if (selected.color == data.color) {
-      chessMovement.selectPiece(data.square, data.piece, data.color);
+    if (selected.color === data.color) {
+      chessMovement.selectPiece(data.square);
       return;
     }
 

@@ -36,11 +36,13 @@ export const COLUMN_NUMBERS: { [key: string]: number } = {
   h: 8,
 };
 
-export function getSquareInfo(square: string): {
+export type SquareInfo = {
   columnName: string;
   columnNumber: number;
   row: number;
-} {
+};
+
+export function getSquareInfo(square: string): SquareInfo {
   const columnAndRow = square.split("");
   const column = columnAndRow[0];
   const row = columnAndRow[1];

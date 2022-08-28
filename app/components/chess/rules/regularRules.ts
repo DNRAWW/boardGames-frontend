@@ -1,6 +1,12 @@
 import { ChessRules, InitailizedBoard } from ".";
 import { SquareIsEmptyError } from "../errors";
-import { Colors, columnNames, COLUMN_NUMBERS, getSquareInfo } from "../utils";
+import {
+  Colors,
+  columnNames,
+  getSquareInfo,
+  Pieces,
+  SquareInfo,
+} from "../utils";
 
 const directionLineFuncs = {
   row: (
@@ -298,6 +304,46 @@ const getQueenMoves = (board: InitailizedBoard, square: string): string[] => {
   ];
 };
 
+const enPassantCheck = (
+  squareToCheck: string,
+  pieceColor: Colors,
+  lastMoveInfo: {
+    from: SquareInfo;
+    to: SquareInfo;
+  }
+): boolean => {
+  const { columnName, columnNumber, row } = getSquareInfo(squareToCheck);
+
+  const directionOfOpponentPawn = pieceColor === Colors.BLACK ? 1 : -1;
+  const startRowOpponent = pieceColor === Colors.BLACK ? 2 : 7;
+
+  const columnLeft = columnNames[columnNumber - 1];
+  const columnRight = columnNames[columnNumber + 1];
+
+  const isLastMoveOnRightColumn =
+    (lastMoveInfo.from.columnName === columnLeft &&
+      lastMoveInfo.to.columnName === columnLeft) ||
+    (lastMoveInfo.from.columnName === columnRight &&
+      lastMoveInfo.to.columnName === columnRight);
+
+  if (!isLastMoveOnRightColumn) {
+    return false;
+  }
+
+  if (!(lastMoveInfo.from.row === startRowOpponent)) {
+    return false;
+  }
+
+  if (
+    lastMoveInfo.to.row !==
+    lastMoveInfo.from.row + directionOfOpponentPawn * 2
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
 export const regularRules: ChessRules = {
   bishop: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
@@ -363,7 +409,6 @@ export const regularRules: ChessRules = {
       return avaliableMoves;
     },
   },
-  // TODO: enPassant
   pawn: {
     getAvaliableMoves: (board: InitailizedBoard, square: string) => {
       const avaliableMoves: string[] = [];
@@ -419,6 +464,25 @@ export const regularRules: ChessRules = {
           board[candidateMove]?.color !== pieceColor
         ) {
           avaliableMoves.push(candidateMove);
+        }
+      }
+
+      // checking for enPassant
+      const enPassantRow = pieceColor === Colors.BLACK ? 4 : 5;
+      if (
+        board.lastMove &&
+        board.lastMove.piece === Pieces.PAWN &&
+        row === enPassantRow
+      ) {
+        const lastMoveInfo = {
+          from: getSquareInfo(board.lastMove.from),
+          to: getSquareInfo(board.lastMove.to),
+        };
+
+        if (enPassantCheck(square, pieceColor, lastMoveInfo)) {
+          const moveToPush =
+            lastMoveInfo.to.columnName + (lastMoveInfo.to.row + direction);
+          avaliableMoves.push(moveToPush);
         }
       }
 

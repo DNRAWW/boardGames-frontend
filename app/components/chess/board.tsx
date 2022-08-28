@@ -1,17 +1,13 @@
 import { Colors, columnNames, Pieces } from "./utils";
 import Square from "./square";
 import Piece from "./piece";
-import {
-  ChessEvents,
-  getChessEventEmitter,
-  SquareEvents,
-} from "./chessEventEmitter";
-import TypedEventEmitter from "typed-emitter";
+import { ChessEvents, getChessEventEmitter } from "./chessEventEmitter";
+import TypedEmitter from "typed-emitter";
 import { BadInputError, BadSquareNameError, InvalidFenError } from "./errors";
 import { Board } from "./chessMovement";
 import { ChessRules } from "./rules";
 import { formatColumns, fenToPiece, fenToColor } from "./fenFunctions";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface BoardProps {
   fen: string;
@@ -22,7 +18,7 @@ interface BoardProps {
 function renderSquares(
   fen: string,
   perspective: Colors,
-  eventEmitter: TypedEventEmitter<ChessEvents>
+  eventEmitter: TypedEmitter<ChessEvents>
 ) {
   const fenSections = fen.split(" ");
 
