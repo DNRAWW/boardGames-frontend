@@ -27,7 +27,7 @@ export default function Piece(props: PieceProps) {
           });
         }}
         style={pieceStyle}
-        src={`./images/${props.color}_${props.piece}.svg`}
+        src={`${props.color}_${props.piece}.svg`}
       ></img>
     </div>
   );
