@@ -1,4 +1,5 @@
 import { ChessRules, InitailizedBoard } from ".";
+import { PieceOnBoard } from "../chessMovement";
 import { SquareIsEmptyError } from "../errors";
 import {
   Colors,
@@ -394,6 +395,53 @@ export const regularRules: ChessRules = {
       if (board[leftSquare] !== undefined) {
         if (isMoveAvaliable(board, leftSquare, pieceColor)) {
           avaliableMoves.push(leftSquare);
+        }
+      }
+
+      const king = <PieceOnBoard>board[square];
+
+      if (king.moved != true) {
+        const firstSide = getAvaliableMovesInLine(board, square, "col", 1);
+        const secondSide = getAvaliableMovesInLine(board, square, "col", -1);
+
+        if (firstSide.length === 2) {
+          const squareInfo = getSquareInfo(firstSide[1]);
+
+          const rookColumn = columnNames[squareInfo.columnNumber + 1];
+          const rookRow = row;
+          const rookSquare = rookColumn + rookRow;
+
+          const rook = board[rookSquare];
+
+          if (
+            rook !== undefined &&
+            rook !== null &&
+            rook.piece === Pieces.ROOK &&
+            rook.color === pieceColor &&
+            rook.moved !== true
+          ) {
+            avaliableMoves.push(firstSide[1]);
+          }
+        }
+
+        if (secondSide.length === 3) {
+          const squareInfo = getSquareInfo(secondSide[2]);
+
+          const rookColumn = columnNames[squareInfo.columnNumber - 1];
+          const rookRow = row;
+          const rookSquare = rookColumn + rookRow;
+
+          const rook = board[rookSquare];
+
+          if (
+            rook !== undefined &&
+            rook !== null &&
+            rook.piece === Pieces.ROOK &&
+            rook.color === pieceColor &&
+            rook.moved !== true
+          ) {
+            avaliableMoves.push(secondSide[1]);
+          }
         }
       }
 

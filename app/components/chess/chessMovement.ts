@@ -4,7 +4,7 @@ import {
   SquareIsEmptyError,
 } from "./errors";
 import { ChessRules } from "./rules";
-import { Colors, getSquareInfo, Pieces } from "./utils";
+import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 import TypedEmitter from "typed-emitter";
 import { BoardEvents, ChessEvents } from "./chessEventEmitter";
 
@@ -185,9 +185,45 @@ export class ChessMovement {
       throw BoardIsNotInitializedErorr();
     }
 
+    const toSquareInfo = getSquareInfo(to);
+    const fromSquareInfo = getSquareInfo(from);
     const fromContent = <PieceOnBoard>this.board[from];
 
-    // TODO: castle
+    const direction =
+      toSquareInfo.columnNumber > fromSquareInfo.columnNumber ? -1 : 1;
+
+    const rookColumn = direction === -1 ? "h" : "a";
+    const rookRow = fromSquareInfo.row;
+
+    this.board[from] = null;
+    this.board[to] = fromContent;
+
+    const movedKing = <PieceOnBoard>this.board[to];
+
+    movedKing.moved = true;
+
+    const nearestRook = this.board[rookColumn + rookRow];
+
+    if (
+      nearestRook === undefined ||
+      nearestRook === null ||
+      nearestRook.piece !== Pieces.ROOK ||
+      nearestRook.color !== fromContent.color
+    ) {
+      throw Error(`Something went wrong, square ${
+        rookColumn + rookRow
+      } does not have a rook on it (or wrong color), content - ${nearestRook}
+      `);
+    }
+
+    const squareToMoveRook =
+      columnNames[toSquareInfo.columnNumber + direction] + toSquareInfo.row;
+
+    this.board[squareToMoveRook] = nearestRook;
+
+    const movedRook = <PieceOnBoard>this.board[squareToMoveRook];
+
+    movedRook.moved = true;
 
     this.board.lastMove = {
       color: fromContent.color,
@@ -195,6 +231,22 @@ export class ChessMovement {
       to: to,
       piece: fromContent.piece,
     };
+
+    this.eventEmitter.emit(
+      "move",
+      from,
+      to,
+      fromContent.piece,
+      fromContent.color
+    );
+
+    this.eventEmitter.emit(
+      "move",
+      rookColumn + rookRow,
+      squareToMoveRook,
+      nearestRook.piece,
+      nearestRook.color
+    );
 
     return;
   }
