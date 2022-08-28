@@ -1,3 +1,10 @@
+# Chess TODO
+
+- [ ] Turns
+- [ ] Check for dangerous moves
+- [ ] Persistence (Offline)
+- [ ] Online
+
 # Welcome to Remix!
 
 - [Remix Docs](https://remix.run/docs)
