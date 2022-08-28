@@ -10,7 +10,7 @@ import {
 
 const directionLineFuncs = {
   row: (
-    board: InitailizedBoard,
+    board: Readonly<InitailizedBoard>,
     startSquare: string,
     directionChange: -1 | 1
   ) => {
@@ -52,7 +52,7 @@ const directionLineFuncs = {
   },
 
   col: (
-    board: InitailizedBoard,
+    board: Readonly<InitailizedBoard>,
     startSquare: string,
     directionChange: -1 | 1
   ) => {
@@ -98,7 +98,7 @@ const directionLineFuncs = {
   },
 
   d1: (
-    board: InitailizedBoard,
+    board: Readonly<InitailizedBoard>,
     startSquare: string,
     directionChange: -1 | 1
   ) => {
@@ -142,7 +142,7 @@ const directionLineFuncs = {
   },
 
   d2: (
-    board: InitailizedBoard,
+    board: Readonly<InitailizedBoard>,
     startSquare: string,
     directionChange: -1 | 1
   ) => {
@@ -188,7 +188,7 @@ const directionLineFuncs = {
 };
 
 const rowOfThreeAvaliable = (
-  board: InitailizedBoard,
+  board: Readonly<InitailizedBoard>,
   startSquare: string,
   rowChange: 1 | -1,
   piceColor: Colors
@@ -227,7 +227,7 @@ const rowOfThreeAvaliable = (
 };
 
 const isMoveAvaliable = (
-  board: InitailizedBoard,
+  board: Readonly<InitailizedBoard>,
   candidateMove: string,
   pieceColor: Colors
 ): boolean => {
@@ -243,7 +243,7 @@ const isMoveAvaliable = (
 };
 
 const getHalfKnightMoves = (
-  board: InitailizedBoard,
+  board: Readonly<InitailizedBoard>,
   startSquare: string,
   columnChage: 1 | -1
 ) => {
@@ -283,7 +283,7 @@ const getHalfKnightMoves = (
 };
 
 const getAvaliableMovesInLine = (
-  board: InitailizedBoard,
+  board: Readonly<InitailizedBoard>,
   startSquare: string,
   direction: "row" | "col" | "d1" | "d2",
   directionChange: -1 | 1
@@ -297,7 +297,10 @@ const getAvaliableMovesInLine = (
   return avaliableMoves;
 };
 
-const getQueenMoves = (board: InitailizedBoard, square: string): string[] => {
+const getQueenMoves = (
+  board: Readonly<InitailizedBoard>,
+  square: string
+): string[] => {
   return [
     ...regularRules.bishop.getAvaliableMoves(board, square),
     ...regularRules.rook.getAvaliableMoves(board, square),
@@ -346,7 +349,7 @@ const enPassantCheck = (
 
 export const regularRules: ChessRules = {
   bishop: {
-    getAvaliableMoves: (board: InitailizedBoard, square: string) => {
+    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
       const avaliableMoves: string[] = [];
 
       const diagonalHalfOne = getAvaliableMovesInLine(board, square, "d1", 1);
@@ -368,7 +371,7 @@ export const regularRules: ChessRules = {
   // TODO: castling
   // TODO: check if any of the moves are dangerous
   king: {
-    getAvaliableMoves: (board: InitailizedBoard, square: string) => {
+    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
       const avaliableMoves: string[] = [];
 
       const pieceColor = <Colors>board[square]?.color;
@@ -398,7 +401,7 @@ export const regularRules: ChessRules = {
     },
   },
   knight: {
-    getAvaliableMoves: (board: InitailizedBoard, square: string) => {
+    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
       const avaliableMoves: string[] = [];
 
       const firstHalf: string[] = getHalfKnightMoves(board, square, 1);
@@ -410,7 +413,7 @@ export const regularRules: ChessRules = {
     },
   },
   pawn: {
-    getAvaliableMoves: (board: InitailizedBoard, square: string) => {
+    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
       const avaliableMoves: string[] = [];
 
       const squareContent = board[square];
@@ -490,12 +493,12 @@ export const regularRules: ChessRules = {
     },
   },
   queen: {
-    getAvaliableMoves: (board: InitailizedBoard, square: string) => {
+    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
       return getQueenMoves(board, square);
     },
   },
   rook: {
-    getAvaliableMoves: (board: InitailizedBoard, square: string) => {
+    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
       const avaliableMoves: string[] = [];
 
       avaliableMoves.push(...getAvaliableMovesInLine(board, square, "row", 1));
