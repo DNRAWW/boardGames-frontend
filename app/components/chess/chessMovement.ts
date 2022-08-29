@@ -75,6 +75,10 @@ export class ChessMovement {
       throw SquareIsEmptyError();
     }
 
+    if (this.selectedPiece) {
+      this.unselectPiece();
+    }
+
     const avaliableMoves = this.rules[piece.piece].getAvaliableMoves(
       this.board,
       square
@@ -88,10 +92,14 @@ export class ChessMovement {
       color: piece.color,
       avaliableMoves: avaliableMoves,
     };
+
+    this.eventEmitter.emit("avaliableMoves", avaliableMoves);
   }
 
   unselectPiece() {
     this.selectedPiece = null;
+
+    this.eventEmitter.emit("cleanAvaliable");
   }
 
   getSelectedPiece() {

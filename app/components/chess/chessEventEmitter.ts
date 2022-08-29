@@ -79,6 +79,8 @@ export type BoardEvents = {
   initChessMovement: (board: Board, rules: ChessRules) => void;
   move: (from: string, to: string, piece: Pieces, color: Colors) => void;
   emptySquare: (square: string) => void;
+  avaliableMoves: (squares: string[]) => void;
+  cleanAvaliable: () => void;
 };
 
 export type SquareEvents = {

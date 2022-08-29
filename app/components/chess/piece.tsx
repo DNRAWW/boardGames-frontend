@@ -27,6 +27,7 @@ export default function Piece(props: PieceProps) {
           });
         }}
         style={pieceStyle}
+        className="block relative ml-auto mr-auto cursor-pointer"
         src={`${props.color}_${props.piece}.svg`}
       ></img>
     </div>

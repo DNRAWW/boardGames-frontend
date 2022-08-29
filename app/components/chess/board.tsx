@@ -104,6 +104,7 @@ function renderSquares(
           color={(column + row) % 2 !== 0 ? Colors.WHITE : Colors.BLACK}
           key={squareName}
           eventEmitter={eventEmitter}
+          avaliable={false}
         >
           {piece && pieceColor ? (
             <Piece
@@ -158,6 +159,7 @@ export default function BoardComponent(props: BoardProps) {
           eventEmitter={chessEventEmitter}
           square={from}
           key={from}
+          avaliable={false}
         ></Square>
       );
 
@@ -167,6 +169,7 @@ export default function BoardComponent(props: BoardProps) {
           eventEmitter={chessEventEmitter}
           square={to}
           key={to}
+          avaliable={false}
         >
           <Piece
             color={color}
@@ -191,8 +194,47 @@ export default function BoardComponent(props: BoardProps) {
           eventEmitter={chessEventEmitter}
           square={square}
           key={square}
+          avaliable={false}
         ></Square>
       );
+
+      setSquares(Object.values(squares));
+    });
+
+    chessEventEmitter.on("avaliableMoves", (avaliableSquares) => {
+      for (const square of avaliableSquares) {
+        const squareContent = squares[square];
+
+        squares[square] = (
+          <Square
+            children={squareContent.props.children}
+            key={square}
+            square={square}
+            eventEmitter={chessEventEmitter}
+            color={squareContent.props.color}
+            avaliable={true}
+          ></Square>
+        );
+      }
+
+      setSquares(Object.values(squares));
+    });
+
+    chessEventEmitter.on("cleanAvaliable", () => {
+      for (const square in squares) {
+        const copy = squares[square];
+
+        squares[square] = (
+          <Square
+            avaliable={false}
+            color={copy.props.color}
+            eventEmitter={chessEventEmitter}
+            square={square}
+            children={copy.props.children}
+            key={square}
+          ></Square>
+        );
+      }
 
       setSquares(Object.values(squares));
     });
