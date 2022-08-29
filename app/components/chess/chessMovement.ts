@@ -97,9 +97,14 @@ export class ChessMovement {
   }
 
   unselectPiece() {
+    if (!this.selectedPiece) {
+      throw Error("Piece is not selected");
+    }
+
+    const squaresToClean = this.selectedPiece.avaliableMoves;
     this.selectedPiece = null;
 
-    this.eventEmitter.emit("cleanAvaliable");
+    this.eventEmitter.emit("cleanAvaliable", squaresToClean);
   }
 
   getSelectedPiece() {

@@ -80,7 +80,7 @@ export type BoardEvents = {
   move: (from: string, to: string, piece: Pieces, color: Colors) => void;
   emptySquare: (square: string) => void;
   avaliableMoves: (squares: string[]) => void;
-  cleanAvaliable: () => void;
+  cleanAvaliable: (squaresToClean: string[]) => void;
 };
 
 export type SquareEvents = {
