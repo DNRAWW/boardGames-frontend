@@ -41,6 +41,9 @@ export class ChessMovement {
 
   private readonly eventEmitter: TypedEmitter<BoardEvents>;
 
+  // TODO: Develop class
+  private readonly chessCalculations: null = null;
+
   constructor(eventEmitter: TypedEmitter<ChessEvents>, colorToMove?: Colors) {
     this.eventEmitter = eventEmitter;
     if (colorToMove) {
@@ -170,6 +173,7 @@ export class ChessMovement {
         fromSquare.columnNumber - 2 == toSquare.columnNumber)
     ) {
       this.castle(from, to);
+      this.changeColorToMove();
       return;
     }
 
@@ -182,6 +186,7 @@ export class ChessMovement {
       toContent === null
     ) {
       this.enPassant(from, to);
+      this.changeColorToMove();
       return;
     }
 
@@ -213,6 +218,8 @@ export class ChessMovement {
     );
 
     this.changeColorToMove();
+
+    // TODO: Call to class to calculate all legal moves
   }
 
   promote(from: string, to: string) {
