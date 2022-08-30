@@ -11,9 +11,13 @@ export function getChessEventEmitter() {
 
   chessEventEmitter.on("pieceClicked", (data) => {
     const selected = chessMovement.getSelectedPiece();
+    const colorToMove = chessMovement.getColorToMove();
 
     if (!selected) {
-      chessMovement.selectPiece(data.square);
+      if (data.color === colorToMove) {
+        chessMovement.selectPiece(data.square);
+      }
+
       return;
     }
 

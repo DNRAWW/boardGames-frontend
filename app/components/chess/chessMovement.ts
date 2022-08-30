@@ -23,17 +23,29 @@ export type BoardExtras = {
 
 export type PieceOnBoard = { piece: Pieces; color: Colors; moved?: boolean };
 
+// TODO: Redo avaliable moves system
+// Before every move calculate every legal move
+// So that we can run the algorithm for finding illigal
+// Moves only one time
+// To do that we need an additional class
+// Chess movement is going to be a proxy to that class
+// That class is going to have a copy of the board for calculations
+// That class is going to have a threat map (online mode only opponent)
+// Illigal moves
+
+// When I do this through this class I can just request
+// legal moves for a piece that was selected
 export class ChessMovement {
-  // TODO: add controlled field to board squares
-  // so that we can know if a move
-  // is dangerous for the king
   private board: Board | null = null;
   private rules: ChessRules | null = null;
 
   private readonly eventEmitter: TypedEmitter<BoardEvents>;
 
-  constructor(eventEmitter: TypedEmitter<ChessEvents>) {
+  constructor(eventEmitter: TypedEmitter<ChessEvents>, colorToMove?: Colors) {
     this.eventEmitter = eventEmitter;
+    if (colorToMove) {
+      this.colorToMove = colorToMove;
+    }
   }
 
   private selectedPiece: {
@@ -46,12 +58,18 @@ export class ChessMovement {
   private isWhiteKingInDanger: boolean = false;
   private isBlackKingInDanger: boolean = false;
 
+  private colorToMove: Colors = Colors.WHITE;
+
   setSquares(squares: Board) {
     this.board = squares;
   }
 
   setRules(rules: ChessRules) {
     this.rules = rules;
+  }
+
+  getColorToMove() {
+    return this.colorToMove;
   }
 
   getKingStatus(color: Colors) {
@@ -79,6 +97,8 @@ export class ChessMovement {
       this.unselectPiece();
     }
 
+    // TODO: Replace this with a call to a class that calculates all
+    // legal moves
     const avaliableMoves = this.rules[piece.piece].getAvaliableMoves(
       this.board,
       square
@@ -191,6 +211,26 @@ export class ChessMovement {
       fromContent.piece,
       fromContent.color
     );
+
+    this.changeColorToMove();
+  }
+
+  promote(from: string, to: string) {
+    if (!this.board || !this.rules) {
+      throw BoardIsNotInitializedErorr();
+    }
+
+    console.log("promote");
+    return;
+  }
+
+  private changeColorToMove() {
+    if (this.colorToMove === Colors.WHITE) {
+      this.colorToMove = Colors.BLACK;
+      return;
+    }
+
+    this.colorToMove = Colors.WHITE;
   }
 
   private castle(from: string, to: string) {
@@ -299,15 +339,6 @@ export class ChessMovement {
       piece: fromContent.piece,
     };
 
-    return;
-  }
-
-  promote(from: string, to: string) {
-    if (!this.board || !this.rules) {
-      throw BoardIsNotInitializedErorr();
-    }
-
-    console.log("promote");
     return;
   }
 }
