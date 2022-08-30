@@ -369,7 +369,6 @@ export const regularRules: ChessRules = {
       return avaliableMoves;
     },
   },
-  // TODO: castling
   // TODO: check if any of the moves are dangerous
   king: {
     getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {

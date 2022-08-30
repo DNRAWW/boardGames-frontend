@@ -18,6 +18,7 @@ export function getChessEventEmitter() {
     }
 
     if (selected.square == data.square) {
+      chessMovement.unselectPiece();
       return;
     }
 

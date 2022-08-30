@@ -144,6 +144,8 @@ export default function BoardComponent(props: BoardProps) {
 
     setSquares(Object.values(squares));
 
+    chessEventEmitter.emit("initChessMovement", board, props.rules);
+
     chessEventEmitter.on("move", (from, to, piece, color) => {
       const fromSquare = squares[from];
       const toSquare = squares[to];
@@ -183,8 +185,6 @@ export default function BoardComponent(props: BoardProps) {
       setSquares(Object.values(squares));
     });
 
-    chessEventEmitter.emit("initChessMovement", board, props.rules);
-
     chessEventEmitter.on("emptySquare", (square) => {
       const squareContent = squares[square];
 
@@ -201,7 +201,6 @@ export default function BoardComponent(props: BoardProps) {
       setSquares(Object.values(squares));
     });
 
-    // TODO: Optimization
     chessEventEmitter.on("avaliableMoves", (avaliableSquares) => {
       for (const square of avaliableSquares) {
         const squareContent = squares[square];
@@ -221,7 +220,6 @@ export default function BoardComponent(props: BoardProps) {
       setSquares(Object.values(squares));
     });
 
-    // TODO: Optimization
     chessEventEmitter.on("cleanAvaliable", (squaresToClean) => {
       for (const square of squaresToClean) {
         const copy = squares[square];
