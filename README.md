@@ -1,7 +1,7 @@
 # Chess TODO
 
 - [x] Turns
-- [ ] Check for dangerous moves
+- [x] Check for dangerous moves
 - [ ] Persistence (Offline)
 - [ ] Online
 
