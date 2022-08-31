@@ -10,8 +10,7 @@ const initChessMovement = (board: Board) => {
   const chessEventEmitter = new EventEmitter() as TypedEmitter<ChessEvents>;
   const chessMovement = new ChessMovement(chessEventEmitter);
 
-  chessMovement.setSquares(board);
-  chessMovement.setRules(regularRules);
+  chessMovement.init(board, regularRules);
 
   return chessMovement;
 };

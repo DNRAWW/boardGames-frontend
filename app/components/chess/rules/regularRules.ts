@@ -9,6 +9,8 @@ import {
   SquareInfo,
 } from "../utils";
 
+// TODO: Check if piece is right color, than add it to the controlled
+
 const directionLineFuncs = {
   row: (
     board: Readonly<InitailizedBoard>,
@@ -16,6 +18,8 @@ const directionLineFuncs = {
     directionChange: -1 | 1
   ) => {
     const avaliableMoves: string[] = [];
+    const controlled: string[] = [];
+
     const pieceColor: Colors = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
@@ -45,11 +49,12 @@ const directionLineFuncs = {
         currentSquare = candidateMove;
         continue;
       } else {
+        controlled.push(candidateMove);
         break;
       }
     }
 
-    return avaliableMoves;
+    return { avaliable: avaliableMoves, controlled: controlled };
   },
 
   col: (
@@ -57,7 +62,9 @@ const directionLineFuncs = {
     startSquare: string,
     directionChange: -1 | 1
   ) => {
-    const avaliableMoves: string[] = [];
+    const availableMoves: string[] = [];
+    const controlled: string[] = [];
+
     const pieceColor: Colors = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
@@ -84,18 +91,19 @@ const directionLineFuncs = {
       );
 
       if (isCandidateMoveAvaliable) {
-        avaliableMoves.push(candidateMove);
+        availableMoves.push(candidateMove);
         if (board[candidateMove] !== null) {
           break;
         }
         currentSquare = candidateMove;
         continue;
       } else {
+        controlled.push(candidateMove);
         break;
       }
     }
 
-    return avaliableMoves;
+    return { avaliable: availableMoves, controlled: controlled };
   },
 
   d1: (
@@ -104,6 +112,8 @@ const directionLineFuncs = {
     directionChange: -1 | 1
   ) => {
     const availableMoves: string[] = [];
+    const controlled: string[] = [];
+
     const pieceColor = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
@@ -135,11 +145,12 @@ const directionLineFuncs = {
 
         currentSquare = candidateMove;
       } else {
+        controlled.push(candidateMove);
         break;
       }
     }
 
-    return availableMoves;
+    return { avaliable: availableMoves, controlled: controlled };
   },
 
   d2: (
@@ -148,6 +159,8 @@ const directionLineFuncs = {
     directionChange: -1 | 1
   ) => {
     const availableMoves: string[] = [];
+    const controlled: string[] = [];
+
     const pieceColor = <Colors>board[startSquare]?.color;
 
     let currentSquare = startSquare;
@@ -180,21 +193,23 @@ const directionLineFuncs = {
 
         currentSquare = candidateMove;
       } else {
+        controlled.push(candidateMove);
         break;
       }
     }
 
-    return availableMoves;
+    return { avaliable: availableMoves, controlled: controlled };
   },
 };
 
-const rowOfThreeAvaliable = (
+const rowOfThree = (
   board: Readonly<InitailizedBoard>,
   startSquare: string,
   rowChange: 1 | -1,
   piceColor: Colors
 ) => {
   const avaliableMoves: string[] = [];
+  const controlled: string[] = [];
 
   const { columnNumber, row } = getSquareInfo(startSquare);
 
@@ -219,12 +234,14 @@ const rowOfThreeAvaliable = (
 
     if (isMoveAvaliable(board, candidateMove, piceColor)) {
       avaliableMoves.push(candidateMove);
+    } else {
+      controlled.push(candidateMove);
     }
 
     candidateMove = columnNames[columnNumber + 1] + row;
   }
 
-  return avaliableMoves;
+  return { avaliable: avaliableMoves, controlled: controlled };
 };
 
 const isMoveAvaliable = (
@@ -249,6 +266,7 @@ const getHalfKnightMoves = (
   columnChage: 1 | -1
 ) => {
   const avaliableMoves: string[] = [];
+  const controlled: string[] = [];
 
   const { columnNumber, row } = getSquareInfo(startSquare);
 
@@ -272,15 +290,16 @@ const getHalfKnightMoves = (
   ];
 
   candidateMoves.forEach((candidate) => {
-    if (
-      board[candidate] !== undefined &&
-      isMoveAvaliable(board, candidate, pieceColor)
-    ) {
-      avaliableMoves.push(candidate);
+    if (board[candidate] !== undefined) {
+      if (isMoveAvaliable(board, candidate, pieceColor)) {
+        avaliableMoves.push(candidate);
+      } else {
+        controlled.push(candidate);
+      }
     }
   });
 
-  return avaliableMoves;
+  return { avaliable: avaliableMoves, controlled: controlled };
 };
 
 const getAvaliableMovesInLine = (
@@ -288,24 +307,31 @@ const getAvaliableMovesInLine = (
   startSquare: string,
   direction: "row" | "col" | "d1" | "d2",
   directionChange: -1 | 1
-): string[] => {
-  const avaliableMoves: string[] = directionLineFuncs[direction](
+): {
+  avaliable: string[];
+  controlled: string[];
+} => {
+  const squares = directionLineFuncs[direction](
     board,
     startSquare,
     directionChange
   );
 
-  return avaliableMoves;
+  return squares;
 };
 
-const getQueenMoves = (
-  board: Readonly<InitailizedBoard>,
-  square: string
-): string[] => {
-  return [
-    ...regularRules.bishop.getAvaliableMoves(board, square),
-    ...regularRules.rook.getAvaliableMoves(board, square),
-  ];
+const getQueenMoves = (board: Readonly<InitailizedBoard>, square: string) => {
+  const bishop = regularRules.bishop.getAvaliableAndControlledMoves(
+    board,
+    square
+  );
+
+  const rook = regularRules.rook.getAvaliableAndControlledMoves(board, square);
+
+  return {
+    avaliable: [...bishop.avaliable, ...rook.avaliable],
+    controlled: [...bishop.controlled, ...rook.controlled],
+  };
 };
 
 const enPassantCheck = (
@@ -350,8 +376,12 @@ const enPassantCheck = (
 
 export const regularRules: ChessRules = {
   bishop: {
-    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
+    getAvaliableAndControlledMoves: (
+      board: Readonly<InitailizedBoard>,
+      square: string
+    ) => {
       const avaliableMoves: string[] = [];
+      const controlled: string[] = [];
 
       const diagonalHalfOne = getAvaliableMovesInLine(board, square, "d1", 1);
       const diagonalHalfTwo = getAvaliableMovesInLine(board, square, "d1", -1);
@@ -360,19 +390,29 @@ export const regularRules: ChessRules = {
       const diagonalHalfFour = getAvaliableMovesInLine(board, square, "d2", -1);
 
       avaliableMoves.push(
-        ...diagonalHalfOne,
-        ...diagonalHalfTwo,
-        ...diagonalHalfThree,
-        ...diagonalHalfFour
+        ...diagonalHalfOne.avaliable,
+        ...diagonalHalfTwo.avaliable,
+        ...diagonalHalfThree.avaliable,
+        ...diagonalHalfFour.avaliable
       );
 
-      return avaliableMoves;
+      controlled.push(
+        ...diagonalHalfOne.controlled,
+        ...diagonalHalfTwo.controlled,
+        ...diagonalHalfThree.controlled,
+        ...diagonalHalfFour.controlled
+      );
+
+      return { avaliable: avaliableMoves, controlled: controlled };
     },
   },
-  // TODO: check if any of the moves are dangerous
   king: {
-    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
+    getAvaliableAndControlledMoves: (
+      board: Readonly<InitailizedBoard>,
+      square: string
+    ) => {
       const avaliableMoves: string[] = [];
+      const controlled: string[] = [];
 
       const pieceColor = <Colors>board[square]?.color;
       const { columnNumber, row } = getSquareInfo(square);
@@ -380,28 +420,44 @@ export const regularRules: ChessRules = {
       const leftSquare = columnNames[columnNumber - 1] + row;
       const rightSquare = columnNames[columnNumber + 1] + row;
 
-      const topRow = rowOfThreeAvaliable(board, square, 1, pieceColor);
-      const bottomRow = rowOfThreeAvaliable(board, square, -1, pieceColor);
+      const topRow = rowOfThree(board, square, 1, pieceColor);
+      const bottomRow = rowOfThree(board, square, -1, pieceColor);
 
-      avaliableMoves.push(...topRow, ...bottomRow);
+      controlled.push(...topRow.controlled, ...topRow.controlled);
+
+      avaliableMoves.push(...topRow.avaliable, ...bottomRow.avaliable);
 
       if (board[rightSquare] !== undefined) {
         if (isMoveAvaliable(board, rightSquare, pieceColor)) {
           avaliableMoves.push(rightSquare);
+        } else {
+          controlled.push(rightSquare);
         }
       }
 
       if (board[leftSquare] !== undefined) {
         if (isMoveAvaliable(board, leftSquare, pieceColor)) {
           avaliableMoves.push(leftSquare);
+        } else {
+          controlled.push(leftSquare);
         }
       }
 
       const king = <PieceOnBoard>board[square];
 
       if (king.moved != true) {
-        const firstSide = getAvaliableMovesInLine(board, square, "col", 1);
-        const secondSide = getAvaliableMovesInLine(board, square, "col", -1);
+        const firstSide = getAvaliableMovesInLine(
+          board,
+          square,
+          "col",
+          1
+        ).avaliable;
+        const secondSide = getAvaliableMovesInLine(
+          board,
+          square,
+          "col",
+          -1
+        ).avaliable;
 
         if (firstSide.length === 2) {
           const squareInfo = getSquareInfo(firstSide[1]);
@@ -444,24 +500,33 @@ export const regularRules: ChessRules = {
         }
       }
 
-      return avaliableMoves;
+      return { avaliable: avaliableMoves, controlled: controlled };
     },
   },
   knight: {
-    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
+    getAvaliableAndControlledMoves: (
+      board: Readonly<InitailizedBoard>,
+      square: string
+    ) => {
       const avaliableMoves: string[] = [];
+      const controlled: string[] = [];
 
-      const firstHalf: string[] = getHalfKnightMoves(board, square, 1);
-      const secondHalf: string[] = getHalfKnightMoves(board, square, -1);
+      const firstHalf = getHalfKnightMoves(board, square, 1);
+      const secondHalf = getHalfKnightMoves(board, square, -1);
 
-      avaliableMoves.push(...firstHalf, ...secondHalf);
+      avaliableMoves.push(...firstHalf.avaliable, ...secondHalf.avaliable);
+      controlled.push(...firstHalf.controlled, ...secondHalf.controlled);
 
-      return avaliableMoves;
+      return { avaliable: avaliableMoves, controlled: controlled };
     },
   },
   pawn: {
-    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
+    getAvaliableAndControlledMoves: (
+      board: Readonly<InitailizedBoard>,
+      square: string
+    ) => {
       const avaliableMoves: string[] = [];
+      const controlled: string[] = [];
 
       const squareContent = board[square];
 
@@ -503,6 +568,8 @@ export const regularRules: ChessRules = {
           board[candidateMove]?.color !== pieceColor
         ) {
           avaliableMoves.push(candidateMove);
+        } else {
+          controlled.push(candidateMove);
         }
       }
 
@@ -514,6 +581,8 @@ export const regularRules: ChessRules = {
           board[candidateMove]?.color !== pieceColor
         ) {
           avaliableMoves.push(candidateMove);
+        } else {
+          controlled.push(candidateMove);
         }
       }
 
@@ -536,27 +605,46 @@ export const regularRules: ChessRules = {
         }
       }
 
-      return avaliableMoves;
+      return { avaliable: avaliableMoves, controlled: controlled };
     },
   },
   queen: {
-    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
+    getAvaliableAndControlledMoves: (
+      board: Readonly<InitailizedBoard>,
+      square: string
+    ) => {
       return getQueenMoves(board, square);
     },
   },
   rook: {
-    getAvaliableMoves: (board: Readonly<InitailizedBoard>, square: string) => {
+    getAvaliableAndControlledMoves: (
+      board: Readonly<InitailizedBoard>,
+      square: string
+    ) => {
       const avaliableMoves: string[] = [];
+      const controlled: string[] = [];
 
-      avaliableMoves.push(...getAvaliableMovesInLine(board, square, "row", 1));
+      let squares = getAvaliableMovesInLine(board, square, "row", 1);
 
-      avaliableMoves.push(...getAvaliableMovesInLine(board, square, "col", 1));
+      avaliableMoves.push(...squares.avaliable);
+      controlled.push(...squares.controlled);
 
-      avaliableMoves.push(...getAvaliableMovesInLine(board, square, "row", -1));
+      squares = getAvaliableMovesInLine(board, square, "col", 1);
 
-      avaliableMoves.push(...getAvaliableMovesInLine(board, square, "col", -1));
+      avaliableMoves.push(...squares.avaliable);
+      controlled.push(...squares.controlled);
 
-      return avaliableMoves;
+      squares = getAvaliableMovesInLine(board, square, "row", -1);
+
+      avaliableMoves.push(...squares.avaliable);
+      controlled.push(...squares.controlled);
+
+      squares = getAvaliableMovesInLine(board, square, "col", -1);
+
+      avaliableMoves.push(...squares.avaliable);
+      controlled.push(...squares.controlled);
+
+      return { avaliable: avaliableMoves, controlled: controlled };
     },
   },
 };

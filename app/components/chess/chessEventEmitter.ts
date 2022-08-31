@@ -71,8 +71,7 @@ export function getChessEventEmitter() {
   });
 
   chessEventEmitter.once("initChessMovement", (board, rules) => {
-    chessMovement.setRules(rules);
-    chessMovement.setSquares(board);
+    chessMovement.init(board, rules);
   });
 
   return chessEventEmitter;
