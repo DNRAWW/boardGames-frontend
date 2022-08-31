@@ -7,6 +7,7 @@ import { ChessRules } from "./rules";
 import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 import TypedEmitter from "typed-emitter";
 import { BoardEvents, ChessEvents } from "./chessEventEmitter";
+import { ChessCalculations } from "./chessCalculations";
 
 export type Board = {
   [key: string]: { piece: Pieces; color: Colors; moved?: boolean } | null;
@@ -37,12 +38,10 @@ export type PieceOnBoard = { piece: Pieces; color: Colors; moved?: boolean };
 // legal moves for a piece that was selected
 export class ChessMovement {
   private board: Board | null = null;
-  private rules: ChessRules | null = null;
 
   private readonly eventEmitter: TypedEmitter<BoardEvents>;
 
-  // TODO: Develop class
-  private readonly chessCalculations: null = null;
+  private chessCalculations: ChessCalculations | null = null;
 
   constructor(eventEmitter: TypedEmitter<ChessEvents>, colorToMove?: Colors) {
     this.eventEmitter = eventEmitter;
@@ -63,12 +62,11 @@ export class ChessMovement {
 
   private colorToMove: Colors = Colors.WHITE;
 
-  setSquares(squares: Board) {
-    this.board = squares;
-  }
+  init(board: Board, rules: ChessRules) {
+    this.board = board;
+    this.chessCalculations = new ChessCalculations(rules, board);
 
-  setRules(rules: ChessRules) {
-    this.rules = rules;
+    this.chessCalculations.calculatePossition(this.colorToMove);
   }
 
   getColorToMove() {
@@ -82,7 +80,7 @@ export class ChessMovement {
   }
 
   selectPiece(square: string) {
-    if (!this.board || !this.rules) {
+    if (!this.chessCalculations || !this.board) {
       throw BoardIsNotInitializedErorr();
     }
 
@@ -100,12 +98,7 @@ export class ChessMovement {
       this.unselectPiece();
     }
 
-    // TODO: Replace this with a call to a class that calculates all
-    // legal moves
-    const avaliableMoves = this.rules[piece.piece].getAvaliableMoves(
-      this.board,
-      square
-    );
+    const avaliableMoves = this.chessCalculations.getLegalMovesForPiece(square);
 
     console.log(avaliableMoves);
 
@@ -148,7 +141,7 @@ export class ChessMovement {
 
   // TODO: Refactoring, moving should not repeat in castle and enPassant
   move(from: string, to: string) {
-    if (!this.board || !this.rules) {
+    if (!this.chessCalculations || !this.board) {
       throw BoardIsNotInitializedErorr();
     }
 
@@ -173,7 +166,10 @@ export class ChessMovement {
         fromSquare.columnNumber - 2 == toSquare.columnNumber)
     ) {
       this.castle(from, to);
+
       this.changeColorToMove();
+      this.chessCalculations.updateBoard(structuredClone(this.board));
+      this.chessCalculations.calculatePossition(this.colorToMove);
       return;
     }
 
@@ -186,7 +182,10 @@ export class ChessMovement {
       toContent === null
     ) {
       this.enPassant(from, to);
+
       this.changeColorToMove();
+      this.chessCalculations.updateBoard(structuredClone(this.board));
+      this.chessCalculations.calculatePossition(this.colorToMove);
       return;
     }
 
@@ -218,12 +217,13 @@ export class ChessMovement {
     );
 
     this.changeColorToMove();
-
+    this.chessCalculations.updateBoard(structuredClone(this.board));
+    this.chessCalculations.calculatePossition(this.colorToMove);
     // TODO: Call to class to calculate all legal moves
   }
 
   promote(from: string, to: string) {
-    if (!this.board || !this.rules) {
+    if (!this.board) {
       throw BoardIsNotInitializedErorr();
     }
 
@@ -241,7 +241,7 @@ export class ChessMovement {
   }
 
   private castle(from: string, to: string) {
-    if (!this.board || !this.rules) {
+    if (!this.board) {
       throw BoardIsNotInitializedErorr();
     }
 
@@ -312,7 +312,7 @@ export class ChessMovement {
   }
 
   private enPassant(from: string, to: string) {
-    if (!this.board || !this.rules) {
+    if (!this.board) {
       throw BoardIsNotInitializedErorr();
     }
 

@@ -8,10 +8,10 @@ export type InitailizedBoard = {
 
 export type ChessRules = {
   [key in Pieces]: {
-    getAvaliableMoves: (
+    getAvaliableAndControlledMoves: (
       board: Readonly<InitailizedBoard>,
       square: string
-    ) => string[];
+    ) => { avaliable: string[]; controlled: string[] };
   };
 };
 
