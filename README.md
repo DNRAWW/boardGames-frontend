@@ -1,9 +1,22 @@
 # Chess TODO
 
+## Logic: 
+
 - [x] Turns
 - [x] Check for dangerous moves
 - [ ] Persistence (Offline)
+- [ ] Checkmate
+- [ ] Promotion
 - [ ] Online
+- [ ] Time
+
+## UI:
+
+- [ ] Check
+- [ ] Checkmate
+- [ ] Promotion
+- [ ] Good UI
+- [ ] Time
 
 # Welcome to Remix!
 
