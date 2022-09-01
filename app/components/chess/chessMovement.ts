@@ -23,19 +23,6 @@ export type BoardExtras = {
 };
 
 export type PieceOnBoard = { piece: Pieces; color: Colors; moved?: boolean };
-
-// TODO: Redo avaliable moves system
-// Before every move calculate every legal move
-// So that we can run the algorithm for finding illigal
-// Moves only one time
-// To do that we need an additional class
-// Chess movement is going to be a proxy to that class
-// That class is going to have a copy of the board for calculations
-// That class is going to have a threat map (online mode only opponent)
-// Illigal moves
-
-// When I do this through this class I can just request
-// legal moves for a piece that was selected
 export class ChessMovement {
   private board: Board | null = null;
 
@@ -100,7 +87,7 @@ export class ChessMovement {
 
     const avaliableMoves = this.chessCalculations.getLegalMovesForPiece(square);
 
-    console.log(avaliableMoves);
+    // console.log(avaliableMoves);
 
     this.selectedPiece = {
       square: square,
@@ -168,6 +155,7 @@ export class ChessMovement {
       this.castle(from, to);
 
       this.changeColorToMove();
+
       this.chessCalculations.updateBoard(structuredClone(this.board));
       this.chessCalculations.calculatePossition(this.colorToMove);
       return;
@@ -219,7 +207,6 @@ export class ChessMovement {
     this.changeColorToMove();
     this.chessCalculations.updateBoard(structuredClone(this.board));
     this.chessCalculations.calculatePossition(this.colorToMove);
-    // TODO: Call to class to calculate all legal moves
   }
 
   promote(from: string, to: string) {

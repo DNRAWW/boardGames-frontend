@@ -17,6 +17,10 @@ const initChessMovement = (board: Board) => {
 
 describe("Сhess movement class", () => {
   test("Make right chess move", () => {
+    global.structuredClone = (object: any) => {
+      return JSON.parse(JSON.stringify(object));
+    };
+
     const board: Board = {
       a3: null,
       a2: {
