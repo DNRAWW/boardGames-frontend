@@ -24,6 +24,7 @@ export class ChessCalculations {
 
   private kingLocation: string = "";
   private previousKingLocation: string | null = null;
+  private isKingInCheck = false;
 
   constructor(rules: ChessRules, board: Board) {
     this.rules = rules;
@@ -35,16 +36,19 @@ export class ChessCalculations {
     this.legalMoves = {};
     this.controlledSquares = {};
     this.kingLocation = "";
+    this.isKingInCheck = false;
 
     this.calculateAllPossibleMoves(color);
-
-    console.log(this.legalMoves[this.kingLocation]);
 
     this.rejectDangerousMoves();
   }
 
   getLegalMovesCount() {
-    return this.legalMoves;
+    let count = 0;
+    for (const pieceSquare in this.legalMoves) {
+      count += this.legalMoves[pieceSquare].length;
+    }
+    return count;
   }
 
   getLegalMovesForPiece(square: string) {
@@ -53,6 +57,10 @@ export class ChessCalculations {
 
   updateBoard(board: Board) {
     this.board = board;
+  }
+
+  IsKingInCheck() {
+    return this.isKingInCheck;
   }
 
   private calculateAllPossibleMoves(color: Colors) {
@@ -113,6 +121,7 @@ export class ChessCalculations {
     if (!isKingInDanger) {
       this.rejectMovesLoop();
     } else {
+      this.isKingInCheck = true;
       const kingAttackedBy = this.threatMap[this.kingLocation].controlledBy;
 
       if (kingAttackedBy.length > 1) {

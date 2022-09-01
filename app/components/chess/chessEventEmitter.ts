@@ -85,6 +85,8 @@ export type BoardEvents = {
   emptySquare: (square: string) => void;
   avaliableMoves: (squares: string[]) => void;
   cleanAvaliable: (squaresToClean: string[]) => void;
+  gameOver: (colorLost: Colors) => void;
+  stalemate: () => void;
 };
 
 export type SquareEvents = {
