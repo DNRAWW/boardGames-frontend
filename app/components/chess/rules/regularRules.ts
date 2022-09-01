@@ -9,8 +9,6 @@ import {
   SquareInfo,
 } from "../utils";
 
-// TODO: Check if piece is right color, than add it to the controlled
-
 const directionLineFuncs = {
   row: (
     board: Readonly<InitailizedBoard>,
@@ -215,22 +213,30 @@ const rowOfThree = (
 
   const candidateRow = Number(row) + rowChange;
 
-  let candidateMove = columnNames[columnNumber - 1] + candidateRow;
+  let candidateColumnNumber = columnNumber - 1;
+
+  let candidateMove = columnNames[candidateColumnNumber] + candidateRow;
 
   for (let c = 0; c < 3; c++) {
     if (candidateMove === undefined) {
+      candidateMove = columnNames[candidateColumnNumber + 1] + candidateRow;
+
       continue;
     }
 
     if (board[candidateMove] === undefined) {
+      candidateMove = columnNames[candidateColumnNumber + 1] + candidateRow;
+
+      continue;
+    }
+
+    if (candidateColumnNumber === undefined) {
+      candidateMove = columnNames[candidateColumnNumber + 1] + candidateRow;
+
       continue;
     }
 
     const { columnNumber, row } = getSquareInfo(candidateMove);
-
-    if (columnNumber === undefined) {
-      continue;
-    }
 
     if (isMoveAvaliable(board, candidateMove, piceColor)) {
       avaliableMoves.push(candidateMove);

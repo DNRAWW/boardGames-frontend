@@ -4,6 +4,7 @@ import { ChessRules } from "./rules";
 import { Colors, getSquareInfo, Pieces } from "./utils";
 
 // TODO: Optimization
+// TODO: tie logic
 
 // Если я один раз проверю все ходы это будет лучше?
 export class ChessCalculations {
@@ -36,6 +37,8 @@ export class ChessCalculations {
     this.kingLocation = "";
 
     this.calculateAllPossibleMoves(color);
+
+    console.log(this.legalMoves[this.kingLocation]);
 
     this.rejectDangerousMoves();
   }
