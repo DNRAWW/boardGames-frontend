@@ -87,8 +87,6 @@ export class ChessMovement {
 
     const avaliableMoves = this.chessCalculations.getLegalMovesForPiece(square);
 
-    // console.log(avaliableMoves);
-
     this.selectedPiece = {
       square: square,
       piece: piece.piece,
@@ -158,6 +156,7 @@ export class ChessMovement {
 
       this.chessCalculations.updateBoard(structuredClone(this.board));
       this.chessCalculations.calculatePossition(this.colorToMove);
+      this.checkForGameOver();
       return;
     }
 
@@ -174,6 +173,7 @@ export class ChessMovement {
       this.changeColorToMove();
       this.chessCalculations.updateBoard(structuredClone(this.board));
       this.chessCalculations.calculatePossition(this.colorToMove);
+      this.checkForGameOver();
       return;
     }
 
@@ -207,6 +207,7 @@ export class ChessMovement {
     this.changeColorToMove();
     this.chessCalculations.updateBoard(structuredClone(this.board));
     this.chessCalculations.calculatePossition(this.colorToMove);
+    this.checkForGameOver();
   }
 
   promote(from: string, to: string) {
@@ -216,6 +217,20 @@ export class ChessMovement {
 
     console.log("promote");
     return;
+  }
+
+  private checkForGameOver() {
+    if (!this.chessCalculations) {
+      throw BoardIsNotInitializedErorr();
+    }
+
+    if (this.chessCalculations.getLegalMovesCount() === 0) {
+      if (!this.chessCalculations.IsKingInCheck()) {
+        this.eventEmitter.emit("stalemate");
+      } else {
+        this.eventEmitter.emit("gameOver", this.colorToMove);
+      }
+    }
   }
 
   private changeColorToMove() {

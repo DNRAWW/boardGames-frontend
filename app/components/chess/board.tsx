@@ -132,30 +132,56 @@ function renderSquares(
 
 export default function BoardComponent(props: BoardProps) {
   const [squaresState, setSquares] = useState<JSX.Element[]>([]);
+  const [colorLost, setLost] = useState<null | Colors>(null);
+  const [isTie, setTie] = useState(false);
+  const [playAgain, setPlayAgain] = useState(0);
 
   useEffect(() => {
     const chessEventEmitter = getChessEventEmitter();
 
-    const { squares, board } = renderSquares(
-      props.fen,
-      props.perspective,
-      chessEventEmitter
-    );
+    let squaresToAdd: {
+      [key: string]: JSX.Element;
+    } = {};
 
-    setSquares(Object.values(squares));
+    let boardToAdd: Board = { lastMove: null };
 
-    chessEventEmitter.emit("initChessMovement", board, props.rules);
+    if (playAgain > 0) {
+      const { squares, board } = renderSquares(
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        props.perspective,
+        chessEventEmitter
+      );
+
+      squaresToAdd = squares;
+      boardToAdd = board;
+
+      setTie(false);
+      setLost(null);
+    } else {
+      const { squares, board } = renderSquares(
+        props.fen,
+        props.perspective,
+        chessEventEmitter
+      );
+
+      squaresToAdd = squares;
+      boardToAdd = board;
+    }
+
+    setSquares(Object.values(squaresToAdd));
+
+    chessEventEmitter.emit("initChessMovement", boardToAdd, props.rules);
 
     chessEventEmitter.on("move", (from, to, piece, color) => {
-      const fromSquare = squares[from];
-      const toSquare = squares[to];
+      const fromSquare = squaresToAdd[from];
+      const toSquare = squaresToAdd[to];
 
       if (fromSquare === undefined || toSquare === undefined) {
         console.error("fromSquare:", fromSquare, "\ntoSquare:", toSquare);
         throw BadSquareNameError();
       }
 
-      squares[from] = (
+      squaresToAdd[from] = (
         <Square
           color={fromSquare.props.color}
           eventEmitter={chessEventEmitter}
@@ -165,7 +191,7 @@ export default function BoardComponent(props: BoardProps) {
         ></Square>
       );
 
-      squares[to] = (
+      squaresToAdd[to] = (
         <Square
           color={toSquare.props.color}
           eventEmitter={chessEventEmitter}
@@ -182,13 +208,13 @@ export default function BoardComponent(props: BoardProps) {
         </Square>
       );
 
-      setSquares(Object.values(squares));
+      setSquares(Object.values(squaresToAdd));
     });
 
     chessEventEmitter.on("emptySquare", (square) => {
-      const squareContent = squares[square];
+      const squareContent = squaresToAdd[square];
 
-      squares[square] = (
+      squaresToAdd[square] = (
         <Square
           color={squareContent.props.color}
           eventEmitter={chessEventEmitter}
@@ -198,14 +224,14 @@ export default function BoardComponent(props: BoardProps) {
         ></Square>
       );
 
-      setSquares(Object.values(squares));
+      setSquares(Object.values(squaresToAdd));
     });
 
     chessEventEmitter.on("avaliableMoves", (avaliableSquares) => {
       for (const square of avaliableSquares) {
-        const squareContent = squares[square];
+        const squareContent = squaresToAdd[square];
 
-        squares[square] = (
+        squaresToAdd[square] = (
           <Square
             children={squareContent.props.children}
             key={square}
@@ -217,14 +243,14 @@ export default function BoardComponent(props: BoardProps) {
         );
       }
 
-      setSquares(Object.values(squares));
+      setSquares(Object.values(squaresToAdd));
     });
 
     chessEventEmitter.on("cleanAvaliable", (squaresToClean) => {
       for (const square of squaresToClean) {
-        const copy = squares[square];
+        const copy = squaresToAdd[square];
 
-        squares[square] = (
+        squaresToAdd[square] = (
           <Square
             avaliable={false}
             color={copy.props.color}
@@ -236,9 +262,45 @@ export default function BoardComponent(props: BoardProps) {
         );
       }
 
-      setSquares(Object.values(squares));
+      setSquares(Object.values(squaresToAdd));
     });
-  }, []);
 
-  return <div className="grid grid-cols-chess gap-0">{squaresState}</div>;
+    chessEventEmitter.on("gameOver", (color) => {
+      setLost(color);
+    });
+
+    chessEventEmitter.on("stalemate", () => {
+      setTie(true);
+    });
+  }, [playAgain]);
+
+  // TODO: Make Stalemate and Checkmate appear over the board
+
+  return (
+    <div>
+      <div>
+        <h2>{isTie ? `Stalemate!` : ""}</h2>
+      </div>
+      <div>
+        <h2>
+          {colorLost
+            ? `Checkmate! ${
+                colorLost[0].toUpperCase() + colorLost.toLowerCase().slice(1)
+              } lost`
+            : ""}
+        </h2>
+      </div>
+      <div className="grid grid-cols-chess gap-0">{squaresState}</div>
+      <button
+        onClick={() => {
+          setPlayAgain((prevState) => {
+            return (prevState += 1);
+          });
+        }}
+        className="block mt-5 w-20 h-20"
+      >
+        Play again
+      </button>
+    </div>
+  );
 }
