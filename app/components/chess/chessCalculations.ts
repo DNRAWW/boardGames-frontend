@@ -1,12 +1,12 @@
 import { Board } from "./chessMovement";
 import { BadSquareNameError, SquareIsEmptyError } from "./errors";
 import { ChessRules } from "./rules";
-import { Colors, getSquareInfo, Pieces } from "./utils";
+import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 
 // TODO: Optimization
 // TODO: tie logic
 
-// Если я один раз проверю все ходы это будет лучше?
+// Если я один раз проверю все ходы это будет быстрее? (Посчитать сложность алгоритма)
 export class ChessCalculations {
   private readonly rules: ChessRules;
   private board: Board;
@@ -16,15 +16,17 @@ export class ChessCalculations {
       controlledBy: string[];
     };
   } = {};
+
   private controlledSquares: {
     [key: string]: boolean;
   } = {};
+
   private legalMoves: { [key: string]: string[] } = {};
   private previousBoard: Board | null = null;
 
   private kingLocation: string = "";
   private previousKingLocation: string | null = null;
-  private isKingInCheck = false;
+  private kingInCheck = false;
 
   constructor(rules: ChessRules, board: Board) {
     this.rules = rules;
@@ -36,7 +38,7 @@ export class ChessCalculations {
     this.legalMoves = {};
     this.controlledSquares = {};
     this.kingLocation = "";
-    this.isKingInCheck = false;
+    this.kingInCheck = false;
 
     this.calculateAllPossibleMoves(color);
 
@@ -59,8 +61,8 @@ export class ChessCalculations {
     this.board = board;
   }
 
-  IsKingInCheck() {
-    return this.isKingInCheck;
+  isKingInCheck() {
+    return this.kingInCheck;
   }
 
   private calculateAllPossibleMoves(color: Colors) {
@@ -121,7 +123,7 @@ export class ChessCalculations {
     if (!isKingInDanger) {
       this.rejectMovesLoop();
     } else {
-      this.isKingInCheck = true;
+      this.kingInCheck = true;
       const kingAttackedBy = this.threatMap[this.kingLocation].controlledBy;
 
       if (kingAttackedBy.length > 1) {
@@ -259,6 +261,69 @@ export class ChessCalculations {
 
     for (var i = kingMovesToDelete.length - 1; i >= 0; i--) {
       kingMoves.splice(kingMovesToDelete[i], 1);
+    }
+
+    this.runCastlingChecks();
+  }
+
+  // TODO: Refactoring, make it more readable
+  private runCastlingChecks() {
+    const kingMoves = this.legalMoves[this.kingLocation];
+
+    if (this.board[this.kingLocation]?.moved !== true) {
+      const kingSquareInfo = getSquareInfo(this.kingLocation);
+
+      const kingSideSquare =
+        columnNames[kingSquareInfo.columnNumber + 1] + kingSquareInfo.row;
+
+      const queenSideSquare =
+        columnNames[kingSquareInfo.columnNumber - 1] + kingSquareInfo.row;
+
+      const kingCastlingSquare =
+        columnNames[kingSquareInfo.columnNumber + 2] + kingSquareInfo.row;
+      const queenCastlingSquare =
+        columnNames[kingSquareInfo.columnNumber - 2] + kingSquareInfo.row;
+
+      let kingSideCastlingAvaliable = false;
+      let queenSideCastlingAvaliable = false;
+
+      let kingSideCastlingIndex = -1;
+      let queenSideCastlingIndex = -1;
+
+      for (const index in kingMoves) {
+        if (kingMoves[index] === kingSideSquare) {
+          kingSideCastlingAvaliable = true;
+        }
+
+        if (kingMoves[index] === queenSideSquare) {
+          queenSideCastlingAvaliable = true;
+        }
+
+        if (kingMoves[index] === kingCastlingSquare) {
+          kingSideCastlingIndex = Number(index);
+        }
+
+        if (kingMoves[index] === queenCastlingSquare) {
+          queenSideCastlingIndex = Number(index);
+        }
+      }
+
+      const movesToDelete = [];
+
+      if (!kingSideCastlingAvaliable) {
+        if (kingSideCastlingIndex !== -1) {
+          movesToDelete.push(kingSideCastlingIndex);
+        }
+      }
+      if (!queenSideCastlingAvaliable) {
+        if (queenSideCastlingIndex !== -1) {
+          movesToDelete.push(queenSideCastlingIndex);
+        }
+      }
+
+      for (var i = movesToDelete.length - 1; i >= 0; i--) {
+        kingMoves.splice(movesToDelete[i], 1);
+      }
     }
   }
 

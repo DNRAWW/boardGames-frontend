@@ -152,11 +152,7 @@ export class ChessMovement {
     ) {
       this.castle(from, to);
 
-      this.changeColorToMove();
-
-      this.chessCalculations.updateBoard(structuredClone(this.board));
-      this.chessCalculations.calculatePossition(this.colorToMove);
-      this.checkForGameOver();
+      this.runAfterMoveLogic();
       return;
     }
 
@@ -170,10 +166,7 @@ export class ChessMovement {
     ) {
       this.enPassant(from, to);
 
-      this.changeColorToMove();
-      this.chessCalculations.updateBoard(structuredClone(this.board));
-      this.chessCalculations.calculatePossition(this.colorToMove);
-      this.checkForGameOver();
+      this.runAfterMoveLogic();
       return;
     }
 
@@ -204,19 +197,49 @@ export class ChessMovement {
       fromContent.color
     );
 
+    this.runAfterMoveLogic();
+  }
+
+  promote(from: string, to: string, pieceToPlace: Pieces) {
+    if (!this.board || !this.chessCalculations) {
+      throw BoardIsNotInitializedErorr();
+    }
+
+    const fromContent = this.board[from];
+
+    if (!fromContent) {
+      throw SquareIsEmptyError();
+    }
+
+    if (this.colorToMove !== fromContent.color) {
+      throw Error("Color to move != promoted piece's color");
+    }
+
+    this.board[to] = {
+      color: fromContent.color,
+      piece: pieceToPlace,
+      moved: true,
+    };
+
+    this.board[from] = null;
+
+    this.eventEmitter.emit("emptySquare", from);
+    this.eventEmitter.emit("placePiece", pieceToPlace, this.colorToMove, to);
+
+    this.runAfterMoveLogic();
+
+    return;
+  }
+
+  private runAfterMoveLogic() {
+    if (!this.board || !this.chessCalculations) {
+      throw BoardIsNotInitializedErorr();
+    }
+
     this.changeColorToMove();
     this.chessCalculations.updateBoard(structuredClone(this.board));
     this.chessCalculations.calculatePossition(this.colorToMove);
     this.checkForGameOver();
-  }
-
-  promote(from: string, to: string) {
-    if (!this.board) {
-      throw BoardIsNotInitializedErorr();
-    }
-
-    console.log("promote");
-    return;
   }
 
   private checkForGameOver() {
@@ -225,7 +248,7 @@ export class ChessMovement {
     }
 
     if (this.chessCalculations.getLegalMovesCount() === 0) {
-      if (!this.chessCalculations.IsKingInCheck()) {
+      if (!this.chessCalculations.isKingInCheck()) {
         this.eventEmitter.emit("stalemate");
       } else {
         this.eventEmitter.emit("gameOver", this.colorToMove);

@@ -1,4 +1,4 @@
-import { Colors, columnNames, Pieces } from "./utils";
+import { Colors, columnNames, Pieces, TPromotion } from "./utils";
 import Square from "./square";
 import Piece from "./piece";
 import { ChessEvents, getChessEventEmitter } from "./chessEventEmitter";
@@ -8,6 +8,7 @@ import { Board } from "./chessMovement";
 import { ChessRules } from "./rules";
 import { formatColumns, fenToPiece, fenToColor } from "./fenFunctions";
 import { useEffect, useState } from "react";
+import PromotionComponent from "./promotionComponent";
 
 interface BoardProps {
   fen: string;
@@ -132,12 +133,24 @@ function renderSquares(
 
 export default function BoardComponent(props: BoardProps) {
   const [squaresState, setSquares] = useState<JSX.Element[]>([]);
-  const [colorLost, setLost] = useState<null | Colors>(null);
-  const [isTie, setTie] = useState(false);
-  const [playAgain, setPlayAgain] = useState(0);
+
+  // Change to gameStatus or somthing like this
+  const [colorLost, setLost] = useState<Colors | null>(null);
+  const [isTie, setTie] = useState<boolean>(false);
+
+  const [promotionState, setPromoitionState] = useState<TPromotion | null>(
+    null
+  );
+
+  const [playAgain, setPlayAgain] = useState<number>(0);
+
+  const [eventEmitter, setEventEmitter] =
+    useState<TypedEmitter<ChessEvents> | null>(null);
 
   useEffect(() => {
     const chessEventEmitter = getChessEventEmitter();
+
+    setEventEmitter(chessEventEmitter);
 
     let squaresToAdd: {
       [key: string]: JSX.Element;
@@ -227,6 +240,29 @@ export default function BoardComponent(props: BoardProps) {
       setSquares(Object.values(squaresToAdd));
     });
 
+    chessEventEmitter.on("placePiece", (piece, color, square) => {
+      const squareContent = squaresToAdd[square];
+
+      squaresToAdd[square] = (
+        <Square
+          color={squareContent.props.color}
+          eventEmitter={chessEventEmitter}
+          square={square}
+          key={square}
+          avaliable={false}
+        >
+          <Piece
+            color={color}
+            piece={piece}
+            eventEmitter={chessEventEmitter}
+            square={square}
+          ></Piece>
+        </Square>
+      );
+
+      setSquares(Object.values(squaresToAdd));
+    });
+
     chessEventEmitter.on("avaliableMoves", (avaliableSquares) => {
       for (const square of avaliableSquares) {
         const squareContent = squaresToAdd[square];
@@ -272,24 +308,46 @@ export default function BoardComponent(props: BoardProps) {
     chessEventEmitter.on("stalemate", () => {
       setTie(true);
     });
+
+    chessEventEmitter.on("closePromotion", () => {
+      setPromoitionState(null);
+    });
+
+    chessEventEmitter.on("askForPromotionPiece", (from, to, color) => {
+      setPromoitionState({
+        color: color,
+        from: from,
+        to: to,
+      });
+    });
   }, [playAgain]);
 
   // TODO: Make Stalemate and Checkmate appear over the board
+  // TODO: Remake play again button, probably in the route and not component
+  // Just remake board component, because in online mode play again is going to have a different function
 
   return (
     <div>
       <div>
-        <h2>{isTie ? `Stalemate!` : ""}</h2>
+        <h2>{isTie ? `It's a tie!` : ""}</h2>
       </div>
       <div>
         <h2>
           {colorLost
-            ? `Checkmate! ${
+            ? `${
                 colorLost[0].toUpperCase() + colorLost.toLowerCase().slice(1)
               } lost`
             : ""}
         </h2>
       </div>
+      {promotionState && eventEmitter ? (
+        <PromotionComponent
+          color={promotionState.color}
+          eventEmitter={eventEmitter}
+          from={promotionState.from}
+          to={promotionState.to}
+        ></PromotionComponent>
+      ) : null}
       <div className="grid grid-cols-chess gap-0">{squaresState}</div>
       <button
         onClick={() => {

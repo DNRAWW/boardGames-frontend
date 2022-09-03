@@ -7,6 +7,10 @@ import { ChessEvents } from "../app/components/chess/chessEventEmitter";
 import EventEmitter from "events";
 
 const initChessMovement = (board: Board) => {
+  global.structuredClone = (object: any) => {
+    return JSON.parse(JSON.stringify(object));
+  };
+
   const chessEventEmitter = new EventEmitter() as TypedEmitter<ChessEvents>;
   const chessMovement = new ChessMovement(chessEventEmitter);
 
@@ -17,10 +21,6 @@ const initChessMovement = (board: Board) => {
 
 describe("Сhess movement class", () => {
   test("Make right chess move", () => {
-    global.structuredClone = (object: any) => {
-      return JSON.parse(JSON.stringify(object));
-    };
-
     const board: Board = {
       a3: null,
       a2: {
