@@ -11,7 +11,7 @@ interface PieceProps {
   color: Colors;
   piece: Pieces;
   square: string;
-  eventEmitter: TypedEmitter<PieceEvents>;
+  eventEmitter?: TypedEmitter<PieceEvents>;
 }
 
 export default function Piece(props: PieceProps) {
@@ -20,14 +20,16 @@ export default function Piece(props: PieceProps) {
       <img
         draggable="false"
         onClick={() => {
-          props.eventEmitter.emit("pieceClicked", {
-            color: props.color,
-            square: props.square,
-            piece: props.piece,
-          });
+          if (props.eventEmitter) {
+            props.eventEmitter.emit("pieceClicked", {
+              color: props.color,
+              square: props.square,
+              piece: props.piece,
+            });
+          }
         }}
         style={pieceStyle}
-        className="block relative ml-auto mr-auto cursor-pointer"
+        className="block relative cursor-pointer"
         src={`${props.color}_${props.piece}.svg`}
       ></img>
     </div>

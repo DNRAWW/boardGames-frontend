@@ -54,3 +54,9 @@ export function getSquareInfo(square: string): SquareInfo {
     row: Number(row),
   };
 }
+
+export type TPromotion = {
+  to: string;
+  from: string;
+  color: Colors;
+};
