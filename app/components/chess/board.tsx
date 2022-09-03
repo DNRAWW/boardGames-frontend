@@ -170,6 +170,7 @@ export default function BoardComponent(props: BoardProps) {
 
       setTie(false);
       setLost(null);
+      setPromoitionState(null);
     } else {
       const { squares, board } = renderSquares(
         props.fen,
