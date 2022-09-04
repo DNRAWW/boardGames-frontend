@@ -110,7 +110,6 @@ export class ChessCalculations {
     }
   }
 
-  //TODO: Refactoring
   private rejectDangerousMoves() {
     let isKingInDanger = false;
 
@@ -154,33 +153,18 @@ export class ChessCalculations {
             continue;
           }
 
-          const movesToCheck = this.legalMoves[pieceSquare];
+          const pieceMoves = this.legalMoves[pieceSquare];
           const movesToDelete = [];
 
-          for (const index in movesToCheck) {
+          for (const index in pieceMoves) {
             if (
-              !allowedSquares.find((square) => square === movesToCheck[index])
+              !allowedSquares.find((square) => square === pieceMoves[index])
             ) {
               movesToDelete.push(Number(index));
+              continue;
             }
-          }
 
-          for (var i = movesToDelete.length - 1; i >= 0; i--) {
-            movesToCheck.splice(movesToDelete[i], 1);
-          }
-        }
-
-        for (const pieceSquare in this.legalMoves) {
-          const piece = this.board[pieceSquare]?.piece;
-          if (piece === Pieces.KING) {
-            continue;
-          }
-
-          const movesToCheck = this.legalMoves[pieceSquare];
-          const movesToDelete: number[] = [];
-
-          for (const index in movesToCheck) {
-            this.makeTempMove(pieceSquare, movesToCheck[index]);
+            this.makeTempMove(pieceSquare, pieceMoves[index]);
 
             const attackerMoves = this.rules[
               attacker.piece
@@ -197,7 +181,7 @@ export class ChessCalculations {
           }
 
           for (var i = movesToDelete.length - 1; i >= 0; i--) {
-            movesToCheck.splice(movesToDelete[i], 1);
+            pieceMoves.splice(movesToDelete[i], 1);
           }
         }
       }
