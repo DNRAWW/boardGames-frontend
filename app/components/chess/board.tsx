@@ -134,7 +134,6 @@ function renderSquares(
 export default function BoardComponent(props: BoardProps) {
   const [squaresState, setSquares] = useState<JSX.Element[]>([]);
 
-  // TODO: Change to gameStatus or somthing like this
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
 
   const [promotionState, setPromoitionState] = useState<TPromotion | null>(
