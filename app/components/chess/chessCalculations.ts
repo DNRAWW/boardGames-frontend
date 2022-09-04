@@ -266,23 +266,18 @@ export class ChessCalculations {
     this.runCastlingChecks();
   }
 
-  // TODO: Refactoring, make it more readable
   private runCastlingChecks() {
     const kingMoves = this.legalMoves[this.kingLocation];
 
     if (this.board[this.kingLocation]?.moved !== true) {
-      const kingSquareInfo = getSquareInfo(this.kingLocation);
+      const { columnNumber, row } = getSquareInfo(this.kingLocation);
 
-      const kingSideSquare =
-        columnNames[kingSquareInfo.columnNumber + 1] + kingSquareInfo.row;
+      const kingSideSquare = columnNames[columnNumber + 1] + row;
 
-      const queenSideSquare =
-        columnNames[kingSquareInfo.columnNumber - 1] + kingSquareInfo.row;
+      const queenSideSquare = columnNames[columnNumber - 1] + row;
 
-      const kingCastlingSquare =
-        columnNames[kingSquareInfo.columnNumber + 2] + kingSquareInfo.row;
-      const queenCastlingSquare =
-        columnNames[kingSquareInfo.columnNumber - 2] + kingSquareInfo.row;
+      const kingSideCastlingSquare = columnNames[columnNumber + 2] + row;
+      const queenSideCastlingSquare = columnNames[columnNumber - 2] + row;
 
       let kingSideCastlingAvaliable = false;
       let queenSideCastlingAvaliable = false;
@@ -290,6 +285,9 @@ export class ChessCalculations {
       let kingSideCastlingIndex = -1;
       let queenSideCastlingIndex = -1;
 
+      // Checking if castling is avaliable
+      // and getting indexes for castling squares
+      // to delete if not avaliable
       for (const index in kingMoves) {
         if (kingMoves[index] === kingSideSquare) {
           kingSideCastlingAvaliable = true;
@@ -299,26 +297,23 @@ export class ChessCalculations {
           queenSideCastlingAvaliable = true;
         }
 
-        if (kingMoves[index] === kingCastlingSquare) {
+        if (kingMoves[index] === kingSideCastlingSquare) {
           kingSideCastlingIndex = Number(index);
         }
 
-        if (kingMoves[index] === queenCastlingSquare) {
+        if (kingMoves[index] === queenSideCastlingSquare) {
           queenSideCastlingIndex = Number(index);
         }
       }
 
       const movesToDelete = [];
 
-      if (!kingSideCastlingAvaliable) {
-        if (kingSideCastlingIndex !== -1) {
-          movesToDelete.push(kingSideCastlingIndex);
-        }
+      if (!kingSideCastlingAvaliable && kingSideCastlingIndex !== -1) {
+        movesToDelete.push(kingSideCastlingIndex);
       }
-      if (!queenSideCastlingAvaliable) {
-        if (queenSideCastlingIndex !== -1) {
-          movesToDelete.push(queenSideCastlingIndex);
-        }
+
+      if (!queenSideCastlingAvaliable && queenSideCastlingIndex !== -1) {
+        movesToDelete.push(queenSideCastlingIndex);
       }
 
       for (var i = movesToDelete.length - 1; i >= 0; i--) {

@@ -124,7 +124,6 @@ export class ChessMovement {
     return this.board[square];
   }
 
-  // TODO: Refactoring, moving should not repeat in castle and enPassant
   move(from: string, to: string) {
     if (!this.chessCalculations || !this.board) {
       throw BoardIsNotInitializedErorr();
