@@ -145,6 +145,9 @@ export class ChessMovement {
       throw BadSquareNameError();
     }
 
+    this.board[to] = fromContent;
+    this.board[from] = null;
+
     if (
       fromContent.piece === Pieces.KING &&
       (fromSquare.columnNumber + 2 == toSquare.columnNumber ||
@@ -170,11 +173,8 @@ export class ChessMovement {
       return;
     }
 
-    this.board[to] = fromContent;
-    this.board[from] = null;
-
     this.board.lastMove = {
-      color: fromContent.color,
+      color: this.colorToMove,
       from: from,
       to: to,
       piece: fromContent.piece,
@@ -219,6 +219,13 @@ export class ChessMovement {
       color: fromContent.color,
       piece: pieceToPlace,
       moved: true,
+    };
+
+    this.board.lastMove = {
+      color: this.colorToMove,
+      from: from,
+      to: to,
+      piece: fromContent.piece,
     };
 
     this.board[from] = null;
@@ -277,16 +284,13 @@ export class ChessMovement {
 
     const toSquareInfo = getSquareInfo(to);
     const fromSquareInfo = getSquareInfo(from);
-    const fromContent = <PieceOnBoard>this.board[from];
+    const toContent = <PieceOnBoard>this.board[to];
 
     const direction =
       toSquareInfo.columnNumber > fromSquareInfo.columnNumber ? -1 : 1;
 
     const rookColumn = direction === -1 ? "h" : "a";
     const rookRow = fromSquareInfo.row;
-
-    this.board[from] = null;
-    this.board[to] = fromContent;
 
     const movedKing = <PieceOnBoard>this.board[to];
 
@@ -298,7 +302,7 @@ export class ChessMovement {
       nearestRook === undefined ||
       nearestRook === null ||
       nearestRook.piece !== Pieces.ROOK ||
-      nearestRook.color !== fromContent.color
+      nearestRook.color !== toContent.color
     ) {
       throw Error(`Something went wrong, square ${
         rookColumn + rookRow
@@ -316,19 +320,13 @@ export class ChessMovement {
     movedRook.moved = true;
 
     this.board.lastMove = {
-      color: fromContent.color,
+      color: toContent.color,
       from: from,
       to: to,
-      piece: fromContent.piece,
+      piece: toContent.piece,
     };
 
-    this.eventEmitter.emit(
-      "move",
-      from,
-      to,
-      fromContent.piece,
-      fromContent.color
-    );
+    this.eventEmitter.emit("move", from, to, toContent.piece, toContent.color);
 
     this.eventEmitter.emit(
       "move",
@@ -346,12 +344,7 @@ export class ChessMovement {
       throw BoardIsNotInitializedErorr();
     }
 
-    const fromContent = <PieceOnBoard>this.board[from];
-
-    const direction = fromContent.color === Colors.BLACK ? -1 : 1;
-
-    this.board[to] = this.board[from];
-    this.board[from] = null;
+    const direction = this.colorToMove === Colors.BLACK ? -1 : 1;
 
     const { columnName, row } = getSquareInfo(to);
 
@@ -361,19 +354,13 @@ export class ChessMovement {
 
     this.eventEmitter.emit("emptySquare", squareToEmpty);
 
-    this.eventEmitter.emit(
-      "move",
-      from,
-      to,
-      fromContent.piece,
-      fromContent.color
-    );
+    this.eventEmitter.emit("move", from, to, Pieces.PAWN, this.colorToMove);
 
     this.board.lastMove = {
-      color: fromContent.color,
+      color: this.colorToMove,
       from: from,
       to: to,
-      piece: fromContent.piece,
+      piece: Pieces.PAWN,
     };
 
     return;
