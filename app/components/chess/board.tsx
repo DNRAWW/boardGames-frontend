@@ -134,9 +134,8 @@ function renderSquares(
 export default function BoardComponent(props: BoardProps) {
   const [squaresState, setSquares] = useState<JSX.Element[]>([]);
 
-  // Change to gameStatus or somthing like this
-  const [colorLost, setLost] = useState<Colors | null>(null);
-  const [isTie, setTie] = useState<boolean>(false);
+  // TODO: Change to gameStatus or somthing like this
+  const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
 
   const [promotionState, setPromoitionState] = useState<TPromotion | null>(
     null
@@ -168,8 +167,7 @@ export default function BoardComponent(props: BoardProps) {
       squaresToAdd = squares;
       boardToAdd = board;
 
-      setTie(false);
-      setLost(null);
+      setGameOverMessage(null);
       setPromoitionState(null);
     } else {
       const { squares, board } = renderSquares(
@@ -302,12 +300,8 @@ export default function BoardComponent(props: BoardProps) {
       setSquares(Object.values(squaresToAdd));
     });
 
-    chessEventEmitter.on("gameOver", (color) => {
-      setLost(color);
-    });
-
-    chessEventEmitter.on("stalemate", () => {
-      setTie(true);
+    chessEventEmitter.on("gameOver", (message) => {
+      setGameOverMessage(message);
     });
 
     chessEventEmitter.on("closePromotion", () => {
@@ -330,16 +324,7 @@ export default function BoardComponent(props: BoardProps) {
   return (
     <div>
       <div>
-        <h2>{isTie ? `It's a tie!` : ""}</h2>
-      </div>
-      <div>
-        <h2>
-          {colorLost
-            ? `${
-                colorLost[0].toUpperCase() + colorLost.toLowerCase().slice(1)
-              } lost`
-            : ""}
-        </h2>
+        <h2>{gameOverMessage ? gameOverMessage : ""}</h2>
       </div>
       {promotionState && eventEmitter ? (
         <PromotionComponent

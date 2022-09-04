@@ -249,9 +249,14 @@ export class ChessMovement {
 
     if (this.chessCalculations.getLegalMovesCount() === 0) {
       if (!this.chessCalculations.isKingInCheck()) {
-        this.eventEmitter.emit("stalemate");
+        this.eventEmitter.emit("gameOver", "Stalemate!");
       } else {
-        this.eventEmitter.emit("gameOver", this.colorToMove);
+        this.eventEmitter.emit(
+          "gameOver",
+          `Checkmate! ${
+            this.colorToMove[0].toUpperCase() + this.colorToMove.slice(1)
+          } lost.`
+        );
       }
     }
   }
