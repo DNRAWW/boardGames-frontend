@@ -129,8 +129,7 @@ export type BoardEvents = {
   askForPromotionPiece: (from: string, to: string, color: Colors) => void;
   avaliableMoves: (squares: string[]) => void;
   cleanAvaliable: (squaresToClean: string[]) => void;
-  gameOver: (colorLost: Colors) => void;
-  stalemate: () => void;
+  gameOver: (message: string) => void;
 };
 
 export type SquareEvents = {
