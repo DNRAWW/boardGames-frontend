@@ -8,6 +8,7 @@ import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 import TypedEmitter from "typed-emitter";
 import { BoardEvents, ChessEvents } from "./chessEventEmitter";
 import { ChessCalculations } from "./chessCalculations";
+import { OfflineBoardPersistence } from "./presistence/presistence";
 
 export type Board = {
   [key: string]: { piece: Pieces; color: Colors; moved?: boolean } | null;
@@ -30,12 +31,7 @@ export class ChessMovement {
 
   private chessCalculations: ChessCalculations | null = null;
 
-  constructor(eventEmitter: TypedEmitter<ChessEvents>, colorToMove?: Colors) {
-    this.eventEmitter = eventEmitter;
-    if (colorToMove) {
-      this.colorToMove = colorToMove;
-    }
-  }
+  private persistence: OfflineBoardPersistence | null = null;
 
   private selectedPiece: {
     square: string;
@@ -49,11 +45,41 @@ export class ChessMovement {
 
   private colorToMove: Colors = Colors.WHITE;
 
-  init(board: Board, rules: ChessRules) {
-    this.board = board;
-    this.chessCalculations = new ChessCalculations(rules, board);
+  constructor(eventEmitter: TypedEmitter<ChessEvents>, colorToMove?: Colors) {
+    this.eventEmitter = eventEmitter;
+    if (colorToMove) {
+      this.colorToMove = colorToMove;
+    }
+  }
+
+  init(
+    board: Board | null,
+    rules: ChessRules,
+    persistence: OfflineBoardPersistence
+  ) {
+    let boardToAdd = board;
+    if (boardToAdd === null) {
+      boardToAdd = <Board>persistence.getBoard();
+    }
+    this.board = boardToAdd;
+
+    this.chessCalculations = new ChessCalculations(
+      rules,
+      structuredClone(this.board)
+    );
+
+    if (localStorage.getItem("board") && localStorage.getItem("colorToMove")) {
+      const colorToMove = localStorage.getItem("colorToMove");
+
+      if (colorToMove !== Colors.BLACK && colorToMove !== Colors.WHITE) {
+        throw Error("Wrong color to move in local storage");
+      }
+
+      this.colorToMove = colorToMove;
+    }
 
     this.chessCalculations.calculatePossition(this.colorToMove);
+    this.persistence = persistence;
   }
 
   getColorToMove() {
@@ -238,11 +264,12 @@ export class ChessMovement {
   }
 
   private runAfterMoveLogic() {
-    if (!this.board || !this.chessCalculations) {
+    if (!this.board || !this.chessCalculations || !this.persistence) {
       throw BoardIsNotInitializedErorr();
     }
 
     this.changeColorToMove();
+    this.persistence.presistBoard(this.board, this.colorToMove);
     this.chessCalculations.updateBoard(structuredClone(this.board));
     this.chessCalculations.calculatePossition(this.colorToMove);
     this.checkForGameOver();

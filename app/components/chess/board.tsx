@@ -9,6 +9,7 @@ import { ChessRules } from "./rules";
 import { formatColumns, fenToPiece, fenToColor } from "./fenFunctions";
 import { useEffect, useState } from "react";
 import PromotionComponent from "./promotionComponent";
+import { OfflineBoardPersistence } from "./presistence/presistence";
 
 interface BoardProps {
   fen: string;
@@ -147,14 +148,14 @@ export default function BoardComponent(props: BoardProps) {
 
   useEffect(() => {
     const chessEventEmitter = getChessEventEmitter();
-
     setEventEmitter(chessEventEmitter);
 
     let squaresToAdd: {
       [key: string]: JSX.Element;
     } = {};
 
-    let boardToAdd: Board = { lastMove: null };
+    const persistence = new OfflineBoardPersistence();
+    let boardToAdd: Board | null = { lastMove: null };
 
     if (playAgain > 0) {
       const { squares, board } = renderSquares(
@@ -169,19 +170,35 @@ export default function BoardComponent(props: BoardProps) {
       setGameOverMessage(null);
       setPromoitionState(null);
     } else {
-      const { squares, board } = renderSquares(
-        props.fen,
-        props.perspective,
-        chessEventEmitter
-      );
+      if (localStorage.getItem("board")) {
+        const squares = persistence.getUI(props.perspective, chessEventEmitter);
 
-      squaresToAdd = squares;
-      boardToAdd = board;
+        if (!squares) {
+          throw Error("Something is wrong with board in local storage");
+        }
+
+        boardToAdd = null;
+        squaresToAdd = squares;
+      } else {
+        const { squares, board } = renderSquares(
+          props.fen,
+          props.perspective,
+          chessEventEmitter
+        );
+
+        squaresToAdd = squares;
+        boardToAdd = board;
+      }
     }
 
     setSquares(Object.values(squaresToAdd));
 
-    chessEventEmitter.emit("initChessMovement", boardToAdd, props.rules);
+    chessEventEmitter.emit(
+      "initChessMovement",
+      boardToAdd,
+      props.rules,
+      persistence
+    );
 
     chessEventEmitter.on("move", (from, to, piece, color) => {
       const fromSquare = squaresToAdd[from];
@@ -320,6 +337,9 @@ export default function BoardComponent(props: BoardProps) {
     setPlayAgain((prevState) => {
       return (prevState += 1);
     });
+
+    localStorage.removeItem("board");
+    localStorage.removeItem("colorToMove");
   };
 
   // TODO: Make Stalemate and Checkmate appear over the board
