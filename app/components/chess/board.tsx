@@ -316,6 +316,12 @@ export default function BoardComponent(props: BoardProps) {
     });
   }, [playAgain]);
 
+  const handlePlayAgain = () => {
+    setPlayAgain((prevState) => {
+      return (prevState += 1);
+    });
+  };
+
   // TODO: Make Stalemate and Checkmate appear over the board
   // TODO: Remake play again button, probably in the route and not component
   // Just remake board component, because in online mode play again is going to have a different function
@@ -334,14 +340,7 @@ export default function BoardComponent(props: BoardProps) {
         ></PromotionComponent>
       ) : null}
       <div className="grid grid-cols-chess gap-0">{squaresState}</div>
-      <button
-        onClick={() => {
-          setPlayAgain((prevState) => {
-            return (prevState += 1);
-          });
-        }}
-        className="block mt-5 w-20 h-20"
-      >
+      <button onClick={handlePlayAgain} className="block mt-5 w-20 h-20">
         Play again
       </button>
     </div>

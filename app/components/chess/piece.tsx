@@ -15,19 +15,21 @@ interface PieceProps {
 }
 
 export default function Piece(props: PieceProps) {
+  const handleClick = () => {
+    if (props.eventEmitter) {
+      props.eventEmitter.emit("pieceClicked", {
+        color: props.color,
+        square: props.square,
+        piece: props.piece,
+      });
+    }
+  };
+
   return (
     <div id={`piece_` + props.square}>
       <img
         draggable="false"
-        onClick={() => {
-          if (props.eventEmitter) {
-            props.eventEmitter.emit("pieceClicked", {
-              color: props.color,
-              square: props.square,
-              piece: props.piece,
-            });
-          }
-        }}
+        onClick={handleClick}
         style={pieceStyle}
         className="block relative cursor-pointer"
         src={`${props.color}_${props.piece}.svg`}
