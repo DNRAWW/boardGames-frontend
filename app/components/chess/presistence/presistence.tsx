@@ -28,10 +28,17 @@ export class OfflineBoardPersistence {
     perspective: Colors,
     eventEmitter: TypedEventEmitter<ChessEvents>
   ): { [key: string]: JSX.Element } | null {
-    const squares: { [key: string]: JSX.Element } = {};
-    if (!this.board || !this.parsedBoard) {
+    const colorToMove = localStorage.getItem("colorToMove");
+
+    if (!this.board || !this.parsedBoard || !colorToMove) {
       return null;
     }
+
+    if (colorToMove !== Colors.WHITE && colorToMove !== Colors.BLACK) {
+      return null;
+    }
+
+    const squares: { [key: string]: JSX.Element } = {};
 
     const keys = Object.keys(this.parsedBoard);
 
@@ -83,12 +90,21 @@ export class OfflineBoardPersistence {
     return squares;
   }
 
-  getBoard(): Board | null {
-    if (!this.board || !this.parsedBoard) {
+  getBoardInfo(): { board: Board; colorToMove: Colors } | null {
+    const colorToMove = localStorage.getItem("colorToMove");
+
+    if (!this.board || !this.parsedBoard || !colorToMove) {
       return null;
     }
 
-    return this.parsedBoard;
+    if (colorToMove !== Colors.WHITE && colorToMove !== Colors.BLACK) {
+      return null;
+    }
+
+    return {
+      board: this.parsedBoard,
+      colorToMove: colorToMove,
+    };
   }
 
   presistBoard(board: Board, colorToMove: Colors): void {

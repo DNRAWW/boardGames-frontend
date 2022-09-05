@@ -23,6 +23,7 @@ function renderSquares(
   eventEmitter: TypedEmitter<ChessEvents>
 ) {
   const fenSections = fen.split(" ");
+  const colorToMove = fenSections[1] === "w" ? Colors.WHITE : Colors.BLACK;
 
   let startRow = 0;
   let startColumn = 0;
@@ -129,7 +130,7 @@ function renderSquares(
     }
   }
 
-  return { squares, board };
+  return { squares, board, colorToMove };
 }
 
 export default function BoardComponent(props: BoardProps) {
@@ -155,10 +156,13 @@ export default function BoardComponent(props: BoardProps) {
     } = {};
 
     const persistence = new OfflineBoardPersistence();
+    const persistedBoardInfo = persistence.getBoardInfo();
+
     let boardToAdd: Board | null = { lastMove: null };
+    let colorToMoveToAdd = Colors.WHITE;
 
     if (playAgain > 0) {
-      const { squares, board } = renderSquares(
+      const { squares, board, colorToMove } = renderSquares(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         props.perspective,
         chessEventEmitter
@@ -166,21 +170,23 @@ export default function BoardComponent(props: BoardProps) {
 
       squaresToAdd = squares;
       boardToAdd = board;
+      colorToMoveToAdd = colorToMove;
 
       setGameOverMessage(null);
       setPromoitionState(null);
     } else {
-      if (localStorage.getItem("board")) {
+      if (persistedBoardInfo) {
         const squares = persistence.getUI(props.perspective, chessEventEmitter);
 
         if (!squares) {
           throw Error("Something is wrong with board in local storage");
         }
 
-        boardToAdd = null;
+        boardToAdd = persistedBoardInfo.board;
+        colorToMoveToAdd = persistedBoardInfo.colorToMove;
         squaresToAdd = squares;
       } else {
-        const { squares, board } = renderSquares(
+        const { squares, board, colorToMove } = renderSquares(
           props.fen,
           props.perspective,
           chessEventEmitter
@@ -188,6 +194,7 @@ export default function BoardComponent(props: BoardProps) {
 
         squaresToAdd = squares;
         boardToAdd = board;
+        colorToMoveToAdd = colorToMove;
       }
     }
 
@@ -196,8 +203,8 @@ export default function BoardComponent(props: BoardProps) {
     chessEventEmitter.emit(
       "initChessMovement",
       boardToAdd,
-      props.rules,
-      persistence
+      colorToMoveToAdd,
+      props.rules
     );
 
     chessEventEmitter.on("move", (from, to, piece, color) => {
