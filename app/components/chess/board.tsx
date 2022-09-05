@@ -201,13 +201,6 @@ export default function BoardComponent(props: BoardProps) {
 
     setSquares(Object.values(squaresToAdd));
 
-    chessEventEmitter.emit(
-      "initChessMovement",
-      boardToAdd,
-      colorToMoveToAdd,
-      props.rules
-    );
-
     chessEventEmitter.on("move", (from, to, piece, color) => {
       const fromSquare = squaresToAdd[from];
       const toSquare = squaresToAdd[to];
@@ -339,9 +332,16 @@ export default function BoardComponent(props: BoardProps) {
         to: to,
       });
     });
+
+    chessEventEmitter.emit(
+      "initChessMovement",
+      boardToAdd,
+      colorToMoveToAdd,
+      props.rules
+    );
   }, []);
 
-  // TODO: Make Stalemate and Checkmate appear over the board
+  // TODO: Make game over message appear over the board
   // TODO: Remake play again button, probably in the route and not component
   // Just remake board component, because in online mode play again is going to have a different function
 

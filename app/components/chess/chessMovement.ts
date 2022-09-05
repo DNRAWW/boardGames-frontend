@@ -59,6 +59,7 @@ export class ChessMovement {
     );
 
     this.chessCalculations.calculatePossition(this.colorToMove);
+    this.checkForGameOver();
   }
 
   getColorToMove() {
