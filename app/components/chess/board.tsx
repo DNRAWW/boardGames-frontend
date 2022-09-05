@@ -17,6 +17,24 @@ interface BoardProps {
   rules: ChessRules;
 }
 
+const placeholderBoard: JSX.Element[] = [];
+
+for (let row = 1; row <= 8; row++) {
+  for (let column = 1; column <= 8; column++) {
+    const squareColor = (column + row) % 2 === 0 ? Colors.WHITE : Colors.BLACK;
+    const square = columnNames[column] + row;
+
+    placeholderBoard.push(
+      <Square
+        avaliable={false}
+        color={squareColor}
+        square={square}
+        key={square}
+      ></Square>
+    );
+  }
+}
+
 function renderSquares(
   fen: string,
   perspective: Colors,
@@ -134,15 +152,13 @@ function renderSquares(
 }
 
 export default function BoardComponent(props: BoardProps) {
-  const [squaresState, setSquares] = useState<JSX.Element[]>([]);
+  const [squaresState, setSquares] = useState<JSX.Element[]>(placeholderBoard);
 
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
 
   const [promotionState, setPromoitionState] = useState<TPromotion | null>(
     null
   );
-
-  const [playAgain, setPlayAgain] = useState<number>(0);
 
   const [eventEmitter, setEventEmitter] =
     useState<TypedEmitter<ChessEvents> | null>(null);
@@ -161,9 +177,19 @@ export default function BoardComponent(props: BoardProps) {
     let boardToAdd: Board | null = { lastMove: null };
     let colorToMoveToAdd = Colors.WHITE;
 
-    if (playAgain > 0) {
+    if (persistedBoardInfo) {
+      const squares = persistence.getUI(props.perspective, chessEventEmitter);
+
+      if (!squares) {
+        throw Error("Something is wrong with board in local storage");
+      }
+
+      boardToAdd = persistedBoardInfo.board;
+      colorToMoveToAdd = persistedBoardInfo.colorToMove;
+      squaresToAdd = squares;
+    } else {
       const { squares, board, colorToMove } = renderSquares(
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        props.fen,
         props.perspective,
         chessEventEmitter
       );
@@ -171,31 +197,6 @@ export default function BoardComponent(props: BoardProps) {
       squaresToAdd = squares;
       boardToAdd = board;
       colorToMoveToAdd = colorToMove;
-
-      setGameOverMessage(null);
-      setPromoitionState(null);
-    } else {
-      if (persistedBoardInfo) {
-        const squares = persistence.getUI(props.perspective, chessEventEmitter);
-
-        if (!squares) {
-          throw Error("Something is wrong with board in local storage");
-        }
-
-        boardToAdd = persistedBoardInfo.board;
-        colorToMoveToAdd = persistedBoardInfo.colorToMove;
-        squaresToAdd = squares;
-      } else {
-        const { squares, board, colorToMove } = renderSquares(
-          props.fen,
-          props.perspective,
-          chessEventEmitter
-        );
-
-        squaresToAdd = squares;
-        boardToAdd = board;
-        colorToMoveToAdd = colorToMove;
-      }
     }
 
     setSquares(Object.values(squaresToAdd));
@@ -338,16 +339,7 @@ export default function BoardComponent(props: BoardProps) {
         to: to,
       });
     });
-  }, [playAgain]);
-
-  const handlePlayAgain = () => {
-    setPlayAgain((prevState) => {
-      return (prevState += 1);
-    });
-
-    localStorage.removeItem("board");
-    localStorage.removeItem("colorToMove");
-  };
+  }, []);
 
   // TODO: Make Stalemate and Checkmate appear over the board
   // TODO: Remake play again button, probably in the route and not component
@@ -367,9 +359,6 @@ export default function BoardComponent(props: BoardProps) {
         ></PromotionComponent>
       ) : null}
       <div className="grid grid-cols-chess gap-0">{squaresState}</div>
-      <button onClick={handlePlayAgain} className="block mt-5 w-20 h-20">
-        Play again
-      </button>
     </div>
   );
 }
