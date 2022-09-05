@@ -201,10 +201,6 @@
   background-color: rgb(147 197 253 / var(--tw-bg-opacity))
 }
 
-.\[key\:string\] {
-  key: string
-}
-
 .before\:absolute::before {
   content: var(--tw-content);
   position: absolute

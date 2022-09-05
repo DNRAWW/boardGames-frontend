@@ -9,6 +9,7 @@ import Piece from "../piece";
 import Square from "../square";
 import { Colors, getSquareInfo } from "../utils";
 
+// TODO: Refactoring
 export class OfflineBoardPersistence {
   private board: string | null = null;
   private parsedBoard: Board | null = null;
@@ -34,9 +35,7 @@ export class OfflineBoardPersistence {
 
     const keys = Object.keys(this.parsedBoard);
 
-    const startPerspective = keys[0] === "a8" ? Colors.WHITE : Colors.BLACK;
-
-    if (perspective !== startPerspective) {
+    if (perspective !== Colors.WHITE) {
       keys.reverse();
     }
 
