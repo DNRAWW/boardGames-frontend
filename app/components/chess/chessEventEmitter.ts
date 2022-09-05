@@ -1,6 +1,7 @@
 import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
 import { Board, ChessMovement } from "./chessMovement";
+import { OfflineBoardPersistence } from "./presistence/presistence";
 import { ChessRules } from "./rules";
 import { Pieces, Colors, getSquareInfo } from "./utils";
 
@@ -109,8 +110,8 @@ export function getChessEventEmitter() {
     chessMovement.unselectPiece();
   });
 
-  chessEventEmitter.once("initChessMovement", (board, rules) => {
-    chessMovement.init(board, rules);
+  chessEventEmitter.once("initChessMovement", (board, rules, persistence) => {
+    chessMovement.init(board, rules, persistence);
   });
 
   return chessEventEmitter;
@@ -122,7 +123,11 @@ export type ChessEvents = PieceEvents &
   PromotionEvents;
 
 export type BoardEvents = {
-  initChessMovement: (board: Board, rules: ChessRules) => void;
+  initChessMovement: (
+    board: Board | null,
+    rules: ChessRules,
+    persistence: OfflineBoardPersistence
+  ) => void;
   move: (from: string, to: string, piece: Pieces, color: Colors) => void;
   emptySquare: (square: string) => void;
   placePiece: (piece: Pieces, color: Colors, square: string) => void;
