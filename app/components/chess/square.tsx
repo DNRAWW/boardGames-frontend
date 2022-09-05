@@ -7,20 +7,22 @@ interface SquareProps {
   color: Colors;
   children?: JSX.Element | undefined;
   square: string;
-  eventEmitter: TypedEmitter<SquareEvents>;
+  eventEmitter?: TypedEmitter<SquareEvents>;
   avaliable: boolean;
 }
 
 export default function Square(props: SquareProps) {
   const handleClick = () => {
-    if (props.children !== undefined) {
-      return;
-    }
+    if (props.eventEmitter) {
+      if (props.children !== undefined) {
+        return;
+      }
 
-    props.eventEmitter.emit("squareClicked", {
-      color: props.color,
-      square: props.square,
-    });
+      props.eventEmitter.emit("squareClicked", {
+        color: props.color,
+        square: props.square,
+      });
+    }
   };
 
   return (

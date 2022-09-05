@@ -17,12 +17,31 @@ interface BoardProps {
   rules: ChessRules;
 }
 
+const placeholderBoard: JSX.Element[] = [];
+
+for (let row = 1; row <= 8; row++) {
+  for (let column = 1; column <= 8; column++) {
+    const squareColor = (column + row) % 2 === 0 ? Colors.WHITE : Colors.BLACK;
+    const square = columnNames[column] + row;
+
+    placeholderBoard.push(
+      <Square
+        avaliable={false}
+        color={squareColor}
+        square={square}
+        key={square}
+      ></Square>
+    );
+  }
+}
+
 function renderSquares(
   fen: string,
   perspective: Colors,
   eventEmitter: TypedEmitter<ChessEvents>
 ) {
   const fenSections = fen.split(" ");
+  const colorToMove = fenSections[1] === "w" ? Colors.WHITE : Colors.BLACK;
 
   let startRow = 0;
   let startColumn = 0;
@@ -129,19 +148,17 @@ function renderSquares(
     }
   }
 
-  return { squares, board };
+  return { squares, board, colorToMove };
 }
 
 export default function BoardComponent(props: BoardProps) {
-  const [squaresState, setSquares] = useState<JSX.Element[]>([]);
+  const [squaresState, setSquares] = useState<JSX.Element[]>(placeholderBoard);
 
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
 
   const [promotionState, setPromoitionState] = useState<TPromotion | null>(
     null
   );
-
-  const [playAgain, setPlayAgain] = useState<number>(0);
 
   const [eventEmitter, setEventEmitter] =
     useState<TypedEmitter<ChessEvents> | null>(null);
@@ -155,40 +172,31 @@ export default function BoardComponent(props: BoardProps) {
     } = {};
 
     const persistence = new OfflineBoardPersistence();
-    let boardToAdd: Board | null = { lastMove: null };
+    const persistedBoardInfo = persistence.getBoardInfo();
 
-    if (playAgain > 0) {
-      const { squares, board } = renderSquares(
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    let boardToAdd: Board | null = { lastMove: null };
+    let colorToMoveToAdd = Colors.WHITE;
+
+    if (persistedBoardInfo) {
+      const squares = persistence.getUI(props.perspective, chessEventEmitter);
+
+      if (!squares) {
+        throw Error("Something is wrong with board in local storage");
+      }
+
+      boardToAdd = persistedBoardInfo.board;
+      colorToMoveToAdd = persistedBoardInfo.colorToMove;
+      squaresToAdd = squares;
+    } else {
+      const { squares, board, colorToMove } = renderSquares(
+        props.fen,
         props.perspective,
         chessEventEmitter
       );
 
       squaresToAdd = squares;
       boardToAdd = board;
-
-      setGameOverMessage(null);
-      setPromoitionState(null);
-    } else {
-      if (localStorage.getItem("board")) {
-        const squares = persistence.getUI(props.perspective, chessEventEmitter);
-
-        if (!squares) {
-          throw Error("Something is wrong with board in local storage");
-        }
-
-        boardToAdd = null;
-        squaresToAdd = squares;
-      } else {
-        const { squares, board } = renderSquares(
-          props.fen,
-          props.perspective,
-          chessEventEmitter
-        );
-
-        squaresToAdd = squares;
-        boardToAdd = board;
-      }
+      colorToMoveToAdd = colorToMove;
     }
 
     setSquares(Object.values(squaresToAdd));
@@ -196,8 +204,8 @@ export default function BoardComponent(props: BoardProps) {
     chessEventEmitter.emit(
       "initChessMovement",
       boardToAdd,
-      props.rules,
-      persistence
+      colorToMoveToAdd,
+      props.rules
     );
 
     chessEventEmitter.on("move", (from, to, piece, color) => {
@@ -331,16 +339,7 @@ export default function BoardComponent(props: BoardProps) {
         to: to,
       });
     });
-  }, [playAgain]);
-
-  const handlePlayAgain = () => {
-    setPlayAgain((prevState) => {
-      return (prevState += 1);
-    });
-
-    localStorage.removeItem("board");
-    localStorage.removeItem("colorToMove");
-  };
+  }, []);
 
   // TODO: Make Stalemate and Checkmate appear over the board
   // TODO: Remake play again button, probably in the route and not component
@@ -360,9 +359,6 @@ export default function BoardComponent(props: BoardProps) {
         ></PromotionComponent>
       ) : null}
       <div className="grid grid-cols-chess gap-0">{squaresState}</div>
-      <button onClick={handlePlayAgain} className="block mt-5 w-20 h-20">
-        Play again
-      </button>
     </div>
   );
 }
