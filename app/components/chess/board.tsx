@@ -9,7 +9,7 @@ import { ChessRules } from "./rules";
 import { formatColumns, fenToPiece, fenToColor } from "./fenFunctions";
 import { useEffect, useState } from "react";
 import PromotionComponent from "./promotionComponent";
-import { OfflineBoardPersistence } from "./presistence/presistence";
+import { BoardPersistence } from "./presistence/presistence";
 
 interface BoardProps {
   fen: string;
@@ -171,7 +171,7 @@ export default function BoardComponent(props: BoardProps) {
       [key: string]: JSX.Element;
     } = {};
 
-    const persistence = new OfflineBoardPersistence();
+    const persistence = new BoardPersistence();
     const persistedBoardInfo = persistence.getBoardInfo();
 
     let boardToAdd: Board | null = { lastMove: null };

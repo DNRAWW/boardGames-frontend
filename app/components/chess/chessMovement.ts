@@ -8,7 +8,7 @@ import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 import TypedEmitter from "typed-emitter";
 import { BoardEvents, ChessEvents } from "./chessEventEmitter";
 import { ChessCalculations } from "./chessCalculations";
-import { OfflineBoardPersistence } from "./presistence/presistence";
+import { BoardPersistence } from "./presistence/presistence";
 
 export type Board = {
   [key: string]: { piece: Pieces; color: Colors; moved?: boolean } | null;
@@ -31,7 +31,7 @@ export class ChessMovement {
 
   private chessCalculations: ChessCalculations | null = null;
 
-  private persistence = new OfflineBoardPersistence();
+  private persistence = new BoardPersistence();
 
   private selectedPiece: {
     square: string;

@@ -1,7 +1,3 @@
-// TODO: Make presistance interface
-// Offline presistance class saves board to localStorage
-// TODO: Make a function to convert board into view
-
 import TypedEventEmitter from "typed-emitter";
 import { ChessEvents } from "../chessEventEmitter";
 import { Board } from "../chessMovement";
@@ -9,8 +5,7 @@ import Piece from "../piece";
 import Square from "../square";
 import { Colors, getSquareInfo } from "../utils";
 
-// TODO: Refactoring
-export class OfflineBoardPersistence {
+export class BoardPersistence {
   private board: string | null = null;
   private parsedBoard: Board | null = null;
 

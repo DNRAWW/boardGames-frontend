@@ -1,7 +1,6 @@
 import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
 import { Board, ChessMovement } from "./chessMovement";
-import { OfflineBoardPersistence } from "./presistence/presistence";
 import { ChessRules } from "./rules";
 import { Pieces, Colors, getSquareInfo } from "./utils";
 
