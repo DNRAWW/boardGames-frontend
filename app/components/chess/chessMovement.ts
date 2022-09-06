@@ -58,7 +58,7 @@ export class ChessMovement {
       structuredClone(this.board)
     );
 
-    this.chessCalculations.calculatePossition(this.colorToMove);
+    this.chessCalculations.calculateLegalMoves(this.colorToMove);
     this.checkForGameOver();
   }
 
@@ -251,7 +251,7 @@ export class ChessMovement {
     this.changeColorToMove();
     this.persistence.presistBoard(this.board, this.colorToMove);
     this.chessCalculations.updateBoard(structuredClone(this.board));
-    this.chessCalculations.calculatePossition(this.colorToMove);
+    this.chessCalculations.calculateLegalMoves(this.colorToMove);
     this.checkForGameOver();
   }
 

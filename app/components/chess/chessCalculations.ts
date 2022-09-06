@@ -32,7 +32,7 @@ export class ChessCalculations {
     this.board = board;
   }
 
-  calculatePossition(color: Colors) {
+  calculateLegalMoves(color: Colors) {
     this.threatMap = {};
     this.legalMoves = {};
     this.protectedSquares = {};
