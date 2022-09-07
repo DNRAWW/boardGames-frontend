@@ -18,6 +18,10 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
+const bodyStyles = {
+  backgroundColor: "#0A64A4",
+};
+
 export default function App() {
   return (
     <html lang="en">
@@ -25,7 +29,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-slate-900">
+      <body className="bg-cyan-200">
         <Outlet />
         <ScrollRestoration />
         <Scripts />
