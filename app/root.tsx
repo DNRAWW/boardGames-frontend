@@ -8,10 +8,9 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 
-import styles from "./styles/app.css"
+import styles from "./styles/app.css";
 
-export const links: LinksFunction = () => 
-  [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -26,7 +25,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="bg-slate-900">
         <Outlet />
         <ScrollRestoration />
         <Scripts />

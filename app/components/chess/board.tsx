@@ -358,7 +358,9 @@ export default function BoardComponent(props: BoardProps) {
           to={promotionState.to}
         ></PromotionComponent>
       ) : null}
-      <div className="grid grid-cols-chess gap-0">{squaresState}</div>
+      <div className="grid grid-cols-chessSM sm:grid-cols-chessMD lg:grid-cols-chess md:grid-cols-chessMD gap-0">
+        {squaresState}
+      </div>
     </div>
   );
 }

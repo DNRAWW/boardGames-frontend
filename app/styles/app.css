@@ -167,28 +167,33 @@
   height: 5rem
 }
 
-.h-24 {
-  height: 6rem
+.h-10 {
+  height: 2.5rem
 }
 
 .w-20 {
   width: 5rem
 }
 
-.w-24 {
-  width: 6rem
+.w-10 {
+  width: 2.5rem
 }
 
 .cursor-pointer {
   cursor: pointer
 }
 
-.grid-cols-chess {
-  grid-template-columns: repeat(8, minmax(0, 6rem))
+.grid-cols-chessSM {
+  grid-template-columns: repeat(8, minmax(0, 2.5rem))
 }
 
 .gap-0 {
   gap: 0px
+}
+
+.bg-slate-900 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity))
 }
 
 .bg-blue-400 {
@@ -291,4 +296,46 @@
 .before\:content-\[\'\'\]::before {
   --tw-content: '';
   content: var(--tw-content)
+}
+
+@media (min-width: 640px) {
+  .sm\:h-20 {
+    height: 5rem
+  }
+
+  .sm\:w-20 {
+    width: 5rem
+  }
+
+  .sm\:grid-cols-chessMD {
+    grid-template-columns: repeat(8, minmax(0, 5rem))
+  }
+}
+
+@media (min-width: 768px) {
+  .md\:h-20 {
+    height: 5rem
+  }
+
+  .md\:w-20 {
+    width: 5rem
+  }
+
+  .md\:grid-cols-chessMD {
+    grid-template-columns: repeat(8, minmax(0, 5rem))
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:h-24 {
+    height: 6rem
+  }
+
+  .lg\:w-24 {
+    width: 6rem
+  }
+
+  .lg\:grid-cols-chess {
+    grid-template-columns: repeat(8, minmax(0, 6rem))
+  }
 }

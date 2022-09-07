@@ -29,7 +29,7 @@ export default function Square(props: SquareProps) {
     <div
       id={`square_` + props.square}
       className={
-        `relative w-24 h-24 ` +
+        `relative w-10 h-10 lg:w-24 lg:h-24 md:w-20 md:h-20 sm:w-20 sm:h-20 ` +
         (props.color == Colors.BLACK ? "bg-blue-400 " : "bg-blue-300 ") +
         (props.avaliable
           ? "cursor-pointer before:content-[''] before:absolute "
