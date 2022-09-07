@@ -5,7 +5,6 @@ import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 
 // TODO: tie logic
 
-// Если я один раз проверю все ходы это будет быстрее? (Посчитать сложность алгоритма)
 export class ChessCalculations {
   private readonly rules: ChessRules;
   private board: Board;

@@ -27,7 +27,7 @@ export type PieceOnBoard = { piece: Pieces; color: Colors; moved?: boolean };
 export class ChessMovement {
   private board: Board | null = null;
 
-  private readonly eventEmitter: TypedEmitter<BoardEvents>;
+  private eventEmitter: TypedEmitter<BoardEvents> | null = null;
 
   private chessCalculations: ChessCalculations | null = null;
 
@@ -45,8 +45,15 @@ export class ChessMovement {
 
   private colorToMove: Colors = Colors.WHITE;
 
-  constructor(eventEmitter: TypedEmitter<ChessEvents>) {
+  setEmitter(eventEmitter: TypedEmitter<BoardEvents>) {
     this.eventEmitter = eventEmitter;
+  }
+
+  getBoard() {
+    if (!this.board) {
+      throw BoardIsNotInitializedErorr();
+    }
+    return this.board;
   }
 
   init(board: Board, colorToMove: Colors, rules: ChessRules) {
@@ -63,6 +70,9 @@ export class ChessMovement {
   }
 
   getColorToMove() {
+    if (!this.colorToMove) {
+      throw BoardIsNotInitializedErorr();
+    }
     return this.colorToMove;
   }
 
@@ -73,6 +83,10 @@ export class ChessMovement {
   }
 
   selectPiece(square: string) {
+    if (!this.eventEmitter) {
+      throw Error("No event emitter");
+    }
+
     if (!this.chessCalculations || !this.board) {
       throw BoardIsNotInitializedErorr();
     }
@@ -104,6 +118,10 @@ export class ChessMovement {
   }
 
   unselectPiece() {
+    if (!this.eventEmitter) {
+      throw Error("No event emitter");
+    }
+
     if (!this.selectedPiece) {
       throw Error("Piece is not selected");
     }
@@ -131,6 +149,10 @@ export class ChessMovement {
   }
 
   move(from: string, to: string) {
+    if (!this.eventEmitter) {
+      throw Error("No event emitter");
+    }
+
     if (!this.chessCalculations || !this.board) {
       throw BoardIsNotInitializedErorr();
     }
@@ -206,6 +228,10 @@ export class ChessMovement {
   }
 
   promote(from: string, to: string, pieceToPlace: Pieces) {
+    if (!this.eventEmitter) {
+      throw Error("No event emitter");
+    }
+
     if (!this.board || !this.chessCalculations) {
       throw BoardIsNotInitializedErorr();
     }
@@ -256,6 +282,10 @@ export class ChessMovement {
   }
 
   private checkForGameOver() {
+    if (!this.eventEmitter) {
+      throw Error("No event emitter");
+    }
+
     if (!this.chessCalculations) {
       throw BoardIsNotInitializedErorr();
     }
@@ -284,6 +314,10 @@ export class ChessMovement {
   }
 
   private castle(from: string, to: string) {
+    if (!this.eventEmitter) {
+      throw Error("No event emitter");
+    }
+
     if (!this.board) {
       throw BoardIsNotInitializedErorr();
     }
@@ -346,6 +380,10 @@ export class ChessMovement {
   }
 
   private enPassant(from: string, to: string) {
+    if (!this.eventEmitter) {
+      throw Error("No event emitter");
+    }
+
     if (!this.board) {
       throw BoardIsNotInitializedErorr();
     }
