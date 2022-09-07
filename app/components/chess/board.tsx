@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import PromotionComponent from "./promotionComponent";
 
 interface BoardProps {
-  fen: string;
   squares: {
     [key: string]: JSX.Element;
   };

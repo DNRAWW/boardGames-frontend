@@ -84,7 +84,6 @@ export default function Chess() {
 
       <div className="flex justify-center">
         <Board
-          fen={fen}
           squares={squares}
           perspective={perspective}
           rules={rules.regularRules}
