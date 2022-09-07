@@ -143,10 +143,6 @@
   position: relative
 }
 
-.m-0 {
-  margin: 0px
-}
-
 .mt-5 {
   margin-top: 1.25rem
 }
@@ -191,10 +187,6 @@
   grid-template-columns: repeat(8, minmax(0, 2.5rem))
 }
 
-.items-center {
-  align-items: center
-}
-
 .justify-center {
   justify-content: center
 }
@@ -216,10 +208,6 @@
 .bg-blue-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(147 197 253 / var(--tw-bg-opacity))
-}
-
-.p-0 {
-  padding: 0px
 }
 
 .before\:absolute::before {

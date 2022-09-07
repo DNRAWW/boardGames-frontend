@@ -10,27 +10,11 @@ const initChessMovement = (board: Board) => {
   global.structuredClone = (object: any) => {
     return JSON.parse(JSON.stringify(object));
   };
-  global.localStorage = {
-    getItem: (...args) => {
-      return null;
-    },
-    clear() {
-      return;
-    },
-    removeItem(...args) {
-      return null;
-    },
-    key(index) {
-      return "";
-    },
-    setItem(...args) {
-      return;
-    },
-    length: 1,
-  };
 
   const chessEventEmitter = new EventEmitter() as TypedEmitter<ChessEvents>;
-  const chessMovement = new ChessMovement(chessEventEmitter);
+  const chessMovement = new ChessMovement();
+
+  chessMovement.setEmitter(chessEventEmitter);
 
   chessMovement.init(board, Colors.WHITE, regularRules);
 
