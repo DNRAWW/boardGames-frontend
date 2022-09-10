@@ -18,10 +18,6 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-const bodyStyles = {
-  backgroundColor: "#0A64A4",
-};
-
 export default function App() {
   return (
     <html lang="en" className="bg-emerald-100 h-full">

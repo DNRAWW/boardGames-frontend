@@ -68,10 +68,6 @@ export default function Chess() {
     eventEmitter.on("move", () => {
       presistBoard();
     });
-
-    eventEmitter.on("promote", () => {
-      presistBoard();
-    });
   }, [playAgain]);
 
   const handlePlayAgain = () => {
