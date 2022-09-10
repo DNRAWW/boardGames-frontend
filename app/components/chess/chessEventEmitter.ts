@@ -129,6 +129,7 @@ export type BoardEvents = {
   cleanAvaliable: (squaresToClean: string[]) => void;
   gameOver: (message: string) => void;
   checkGameOver: () => void;
+  colorToMoveChanged: (color: Colors) => void;
 };
 
 export type SquareEvents = {

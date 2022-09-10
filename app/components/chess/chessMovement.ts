@@ -294,7 +294,7 @@ export class ChessMovement {
   }
 
   private runAfterMoveLogic() {
-    if (!this.board || !this.chessCalculations) {
+    if (!this.board || !this.chessCalculations || !this.eventEmitter) {
       throw BoardIsNotInitializedErorr();
     }
 
@@ -303,6 +303,7 @@ export class ChessMovement {
     this.chessCalculations.updateBoard(structuredClone(this.board));
     this.chessCalculations.calculateLegalMoves(this.colorToMove);
     this.checkForGameOver();
+    this.eventEmitter.emit("colorToMoveChanged", this.colorToMove);
   }
 
   private changeColorToMove() {

@@ -1,4 +1,10 @@
-import { Board, Colors, rules, getChessEventEmitter } from "@components/chess";
+import {
+  Board,
+  Colors,
+  rules,
+  getChessEventEmitter,
+  RightPanel,
+} from "@components/chess";
 import { MetaFunction } from "@remix-run/node";
 import { useEffect, useState } from "react";
 import TypedEventEmitter from "typed-emitter";
@@ -25,6 +31,7 @@ export default function Chess() {
     placeholderBoard()
   );
   const [renderCount, setRenderCount] = useState(0);
+  const [colorToMove, setColorToMove] = useState(Colors.WHITE);
 
   useEffect(() => {
     const chessMovement = new ChessMovement();
@@ -43,6 +50,7 @@ export default function Chess() {
         rules.regularRules
       );
 
+      setColorToMove(persistedBoardInfo.colorToMove);
       setSquares(persistedUI);
       setRenderCount((prev) => prev + 1);
     } else {
@@ -54,6 +62,7 @@ export default function Chess() {
 
       chessMovement.init(board, colorToMove, rules.regularRules);
 
+      setColorToMove(colorToMove);
       setSquares(squares);
       setRenderCount((prev) => prev + 1);
     }
@@ -83,19 +92,24 @@ export default function Chess() {
     <main key={renderCount}>
       <h1>Play chess</h1>
 
-      <div className="flex justify-center">
-        <Board
-          squares={squares}
-          perspective={perspective}
-          rules={rules.regularRules}
-          eventEmitter={eventEmitter}
-          key={playAgain}
-        ></Board>
+      <div className="flex justify-center flex-wrap">
+        <div>
+          <Board
+            squares={squares}
+            perspective={perspective}
+            rules={rules.regularRules}
+            eventEmitter={eventEmitter}
+            key={playAgain}
+          ></Board>
+        </div>
+        <div className="self-center">
+          <RightPanel
+            eventEmitter={eventEmitter}
+            handlePlayAgain={handlePlayAgain}
+            colorToMove={colorToMove}
+          ></RightPanel>
+        </div>
       </div>
-
-      <button onClick={handlePlayAgain} className="block mt-5 w-20 h-20">
-        Play again
-      </button>
     </main>
   );
 }
