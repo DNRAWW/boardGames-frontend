@@ -14,7 +14,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "New Remix App",
+  title: "Games",
   viewport: "width=device-width,initial-scale=1",
 });
 
@@ -24,12 +24,12 @@ const bodyStyles = {
 
 export default function App() {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-emerald-100 h-full">
       <head>
         <Meta />
         <Links />
       </head>
-      <body className="bg-cyan-200">
+      <body>
         <Outlet />
         <ScrollRestoration />
         <Scripts />

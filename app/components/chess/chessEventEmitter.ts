@@ -108,6 +108,10 @@ export function getChessEventEmitter(chessMovement: ChessMovement) {
     chessMovement.unselectPiece();
   });
 
+  chessEventEmitter.on("checkGameOver", () => {
+    chessMovement.checkForGameOver();
+  });
+
   return chessEventEmitter;
 }
 
@@ -124,6 +128,7 @@ export type BoardEvents = {
   avaliableMoves: (squares: string[]) => void;
   cleanAvaliable: (squaresToClean: string[]) => void;
   gameOver: (message: string) => void;
+  checkGameOver: () => void;
 };
 
 export type SquareEvents = {

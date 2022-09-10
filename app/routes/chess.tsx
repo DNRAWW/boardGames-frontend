@@ -1,4 +1,5 @@
 import { Board, Colors, rules, getChessEventEmitter } from "@components/chess";
+import { MetaFunction } from "@remix-run/node";
 import { useEffect, useState } from "react";
 import TypedEventEmitter from "typed-emitter";
 import { ChessEvents } from "~/components/chess/chessEventEmitter";
@@ -8,6 +9,10 @@ import {
   placeholderBoard,
   renderSquaresWithFen,
 } from "~/components/chess/renderFunctions";
+
+export const meta: MetaFunction = () => ({
+  title: "Chess",
+});
 
 export default function Chess() {
   const fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

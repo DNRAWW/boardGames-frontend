@@ -66,7 +66,6 @@ export class ChessMovement {
     );
 
     this.chessCalculations.calculateLegalMoves(this.colorToMove);
-    this.checkForGameOver();
   }
 
   getColorToMove() {
@@ -269,19 +268,7 @@ export class ChessMovement {
     return;
   }
 
-  private runAfterMoveLogic() {
-    if (!this.board || !this.chessCalculations) {
-      throw BoardIsNotInitializedErorr();
-    }
-
-    this.changeColorToMove();
-    this.persistence.presistBoard(this.board, this.colorToMove);
-    this.chessCalculations.updateBoard(structuredClone(this.board));
-    this.chessCalculations.calculateLegalMoves(this.colorToMove);
-    this.checkForGameOver();
-  }
-
-  private checkForGameOver() {
+  checkForGameOver() {
     if (!this.eventEmitter) {
       throw Error("No event emitter");
     }
@@ -302,6 +289,18 @@ export class ChessMovement {
         );
       }
     }
+  }
+
+  private runAfterMoveLogic() {
+    if (!this.board || !this.chessCalculations) {
+      throw BoardIsNotInitializedErorr();
+    }
+
+    this.changeColorToMove();
+    this.persistence.presistBoard(this.board, this.colorToMove);
+    this.chessCalculations.updateBoard(structuredClone(this.board));
+    this.chessCalculations.calculateLegalMoves(this.colorToMove);
+    this.checkForGameOver();
   }
 
   private changeColorToMove() {

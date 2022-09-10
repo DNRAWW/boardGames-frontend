@@ -8,7 +8,7 @@ module.exports = {
       gridTemplateColumns: {
         'chess': 'repeat(8, minmax(0, 6rem))',
         'chessMD': 'repeat(8, minmax(0, 5rem))',
-        'chessSM': 'repeat(8, minmax(0, 2.5rem))',
+        'chessSM': 'repeat(8, minmax(0, 2.25rem))',
       }
     },
   },

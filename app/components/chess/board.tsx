@@ -167,25 +167,46 @@ export default function BoardComponent(props: BoardProps) {
         to: to,
       });
     });
+
+    props.eventEmitter.emit("checkGameOver");
   }, []);
 
   // TODO: Make game over message appear over the board
 
   return (
     <div>
-      <div>
-        <h2>{gameOverMessage ? gameOverMessage : ""}</h2>
-      </div>
-      {promotionState && props.eventEmitter ? (
-        <PromotionComponent
-          color={promotionState.color}
-          eventEmitter={props.eventEmitter}
-          from={promotionState.from}
-          to={promotionState.to}
-        ></PromotionComponent>
-      ) : null}
-      <div className="grid grid-cols-chessSM sm:grid-cols-chessMD lg:grid-cols-chess md:grid-cols-chessMD gap-0">
-        {squaresState}
+      <div className="relative">
+        {promotionState && props.eventEmitter ? (
+          <PromotionComponent
+            color={promotionState.color}
+            eventEmitter={props.eventEmitter}
+            from={promotionState.from}
+            to={promotionState.to}
+          ></PromotionComponent>
+        ) : null}
+        <div
+          className={
+            "block h-full absolute text-center " +
+            "left-0 right-0 mr-auto ml-auto " +
+            (gameOverMessage ? "z-10" : "")
+          }
+        >
+          <h2
+            style={{
+              transform: "translateY(-50%)",
+            }}
+            className={
+              "transition-opacity ease-in-out duration-300 inline-block " +
+              "relative top-1/2 m-0 p-4 rounded-3xl bg-teal-400 " +
+              (gameOverMessage ? "opacity-100" : "opacity-0")
+            }
+          >
+            {gameOverMessage ? gameOverMessage : ""}
+          </h2>
+        </div>
+        <div className="border-solid grid grid-cols-chessSM sm:grid-cols-chessMD lg:grid-cols-chess md:grid-cols-chessMD gap-0">
+          {squaresState}
+        </div>
       </div>
     </div>
   );
