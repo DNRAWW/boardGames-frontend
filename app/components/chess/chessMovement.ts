@@ -6,7 +6,7 @@ import {
 import { ChessRules } from "./rules";
 import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 import TypedEmitter from "typed-emitter";
-import { BoardEvents, ChessEvents } from "./chessEventEmitter";
+import { BoardEvents, ChessEvents, PromotionEvents } from "./chessEventEmitter";
 import { ChessCalculations } from "./chessCalculations";
 import { BoardPersistence } from "./presistence/presistence";
 
@@ -27,7 +27,8 @@ export type PieceOnBoard = { piece: Pieces; color: Colors; moved?: boolean };
 export class ChessMovement {
   private board: Board | null = null;
 
-  private eventEmitter: TypedEmitter<BoardEvents> | null = null;
+  private eventEmitter: TypedEmitter<BoardEvents & PromotionEvents> | null =
+    null;
 
   private chessCalculations: ChessCalculations | null = null;
 
@@ -129,6 +130,7 @@ export class ChessMovement {
     this.selectedPiece = null;
 
     this.eventEmitter.emit("cleanAvaliable", squaresToClean);
+    this.eventEmitter.emit("closePromotion");
   }
 
   getSelectedPiece() {
