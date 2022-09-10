@@ -30,8 +30,7 @@ export default function Piece(props: PieceProps) {
       <img
         draggable="false"
         onClick={handleClick}
-        style={pieceStyle}
-        className="block relative cursor-pointer"
+        className="block w-9 h-9 lg:w-24 lg:h-24 md:w-20 md:h-20 sm:w-20 sm:h-20 relative cursor-pointer"
         src={`${props.color}_${props.piece}.svg`}
       ></img>
     </div>

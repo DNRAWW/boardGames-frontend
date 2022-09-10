@@ -1,14 +1,12 @@
 import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
-import { Board, ChessMovement } from "./chessMovement";
-import { OfflineBoardPersistence } from "./presistence/presistence";
-import { ChessRules } from "./rules";
+import { ChessMovement } from "./chessMovement";
 import { Pieces, Colors, getSquareInfo } from "./utils";
 
-export function getChessEventEmitter() {
+export function getChessEventEmitter(chessMovement: ChessMovement) {
   const chessEventEmitter = new EventEmitter() as TypedEmitter<ChessEvents>;
 
-  const chessMovement = new ChessMovement(chessEventEmitter);
+  chessMovement.setEmitter(chessEventEmitter);
 
   chessEventEmitter.on("pieceClicked", (data) => {
     const selected = chessMovement.getSelectedPiece();
@@ -110,8 +108,8 @@ export function getChessEventEmitter() {
     chessMovement.unselectPiece();
   });
 
-  chessEventEmitter.once("initChessMovement", (board, color, rules) => {
-    chessMovement.init(board, color, rules);
+  chessEventEmitter.on("checkGameOver", () => {
+    chessMovement.checkForGameOver();
   });
 
   return chessEventEmitter;
@@ -123,11 +121,6 @@ export type ChessEvents = PieceEvents &
   PromotionEvents;
 
 export type BoardEvents = {
-  initChessMovement: (
-    board: Board,
-    colorToMove: Colors,
-    rules: ChessRules
-  ) => void;
   move: (from: string, to: string, piece: Pieces, color: Colors) => void;
   emptySquare: (square: string) => void;
   placePiece: (piece: Pieces, color: Colors, square: string) => void;
@@ -135,6 +128,7 @@ export type BoardEvents = {
   avaliableMoves: (squares: string[]) => void;
   cleanAvaliable: (squaresToClean: string[]) => void;
   gameOver: (message: string) => void;
+  checkGameOver: () => void;
 };
 
 export type SquareEvents = {

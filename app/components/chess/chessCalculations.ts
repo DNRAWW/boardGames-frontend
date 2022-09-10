@@ -3,10 +3,8 @@ import { BadSquareNameError, SquareIsEmptyError } from "./errors";
 import { ChessRules } from "./rules";
 import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 
-// TODO: Optimization
 // TODO: tie logic
 
-// Если я один раз проверю все ходы это будет быстрее? (Посчитать сложность алгоритма)
 export class ChessCalculations {
   private readonly rules: ChessRules;
   private board: Board;
@@ -17,7 +15,7 @@ export class ChessCalculations {
     };
   } = {};
 
-  private controlledSquares: {
+  private protectedSquares: {
     [key: string]: boolean;
   } = {};
 
@@ -33,10 +31,10 @@ export class ChessCalculations {
     this.board = board;
   }
 
-  calculatePossition(color: Colors) {
+  calculateLegalMoves(color: Colors) {
     this.threatMap = {};
     this.legalMoves = {};
-    this.controlledSquares = {};
+    this.protectedSquares = {};
     this.kingLocation = "";
     this.kingInCheck = false;
 
@@ -66,8 +64,8 @@ export class ChessCalculations {
   }
 
   private calculateAllPossibleMoves(color: Colors) {
-    for (const pieceSquare in this.board) {
-      const squareContent = this.board[pieceSquare];
+    for (const square in this.board) {
+      const squareContent = this.board[square];
 
       if (!squareContent) {
         continue;
@@ -75,29 +73,29 @@ export class ChessCalculations {
 
       const avaliableAndControlledSquares = this.rules[
         squareContent.piece
-      ].getAvaliableAndControlledMoves(this.board, pieceSquare);
+      ].getAvaliableAndControlledMoves(this.board, square);
 
       const avaliableMoves = avaliableAndControlledSquares.avaliable;
       const controlledSquares = avaliableAndControlledSquares.controlled;
 
       if (squareContent.color === color) {
-        this.legalMoves[pieceSquare] = avaliableMoves;
+        this.legalMoves[square] = avaliableMoves;
       } else {
         avaliableMoves.forEach((controlledSquare: string) => {
           if (squareContent.piece !== Pieces.PAWN) {
-            this.addSquareToThreatMap(controlledSquare, pieceSquare);
+            this.addSquareToThreatMap(controlledSquare, square);
           } else {
-            const pieceSquareInfo = getSquareInfo(pieceSquare);
+            const pieceSquareInfo = getSquareInfo(square);
             const controlledSquareInfo = getSquareInfo(controlledSquare);
 
             if (controlledSquareInfo.columnName != pieceSquareInfo.columnName) {
-              this.addSquareToThreatMap(controlledSquare, pieceSquare);
+              this.addSquareToThreatMap(controlledSquare, square);
             }
           }
         });
 
         controlledSquares.forEach((square) => {
-          this.controlledSquares[square] = true;
+          this.protectedSquares[square] = true;
         });
       }
 
@@ -105,7 +103,7 @@ export class ChessCalculations {
         squareContent.piece === Pieces.KING &&
         squareContent.color === color
       ) {
-        this.kingLocation = pieceSquare;
+        this.kingLocation = square;
       }
     }
   }
@@ -116,23 +114,24 @@ export class ChessCalculations {
     for (const threat in this.threatMap) {
       if (threat === this.kingLocation) {
         isKingInDanger = true;
+        this.kingInCheck = true;
+        break;
       }
     }
 
     if (!isKingInDanger) {
       this.rejectMovesLoop();
     } else {
-      this.kingInCheck = true;
-      const kingAttackedBy = this.threatMap[this.kingLocation].controlledBy;
+      const attackers = this.threatMap[this.kingLocation].controlledBy;
 
-      if (kingAttackedBy.length > 1) {
+      if (attackers.length > 1) {
         const kingMoves = this.legalMoves[this.kingLocation];
 
         this.legalMoves = {};
 
         this.legalMoves[this.kingLocation] = kingMoves;
       } else {
-        const attacker = this.board[kingAttackedBy[0]];
+        const attacker = this.board[attackers[0]];
 
         if (!attacker) {
           throw Error("Attacker is empty");
@@ -140,12 +139,9 @@ export class ChessCalculations {
 
         const allowedSquares = this.rules[
           attacker.piece
-        ].getAvaliableAndControlledMoves(
-          this.board,
-          kingAttackedBy[0]
-        ).avaliable;
+        ].getAvaliableAndControlledMoves(this.board, attackers[0]).avaliable;
 
-        allowedSquares.push(kingAttackedBy[0]);
+        allowedSquares.push(attackers[0]);
 
         for (const pieceSquare in this.legalMoves) {
           const piece = this.board[pieceSquare]?.piece;
@@ -170,7 +166,7 @@ export class ChessCalculations {
               attacker.piece
             ].getAvaliableAndControlledMoves(
               this.board,
-              kingAttackedBy[0]
+              attackers[0]
             ).avaliable;
 
             if (attackerMoves.find((square) => square === this.kingLocation)) {
@@ -192,29 +188,30 @@ export class ChessCalculations {
   private rejectMovesLoop() {
     for (const threat in this.threatMap) {
       const moves = this.legalMoves[threat];
-      const controlledBy = this.threatMap[threat].controlledBy;
 
       if (!moves) {
         continue;
       }
+
+      const controlledBy = this.threatMap[threat].controlledBy;
 
       const movesToDelete = [];
 
       for (const index in moves) {
         this.makeTempMove(threat, moves[index]);
 
-        for (const pieceToCheckSquare of controlledBy) {
-          const piece = this.board[pieceToCheckSquare];
+        for (const attackerSquare of controlledBy) {
+          const piece = this.board[attackerSquare]?.piece;
 
           if (!piece) {
-            throw Error(`Something went wrong, ${pieceToCheckSquare} is empty`);
+            throw Error(`Something went wrong, ${attackerSquare} is empty`);
           }
 
           const avaliableMoves = this.rules[
-            piece.piece
+            piece
           ].getAvaliableAndControlledMoves(
             this.board,
-            pieceToCheckSquare
+            attackerSquare
           ).avaliable;
 
           if (avaliableMoves.find((square) => square === this.kingLocation)) {
@@ -236,7 +233,7 @@ export class ChessCalculations {
     for (const index in kingMoves) {
       if (
         this.threatMap[kingMoves[index]] ||
-        this.controlledSquares[kingMoves[index]]
+        this.protectedSquares[kingMoves[index]]
       ) {
         kingMovesToDelete.push(Number(index));
         continue;
@@ -251,58 +248,60 @@ export class ChessCalculations {
   }
 
   private runCastlingChecks() {
+    if (this.board[this.kingLocation]?.moved === true) {
+      return;
+    }
+
     const kingMoves = this.legalMoves[this.kingLocation];
 
-    if (this.board[this.kingLocation]?.moved !== true) {
-      const { columnNumber, row } = getSquareInfo(this.kingLocation);
+    const { columnNumber, row } = getSquareInfo(this.kingLocation);
 
-      const kingSideSquare = columnNames[columnNumber + 1] + row;
+    const kingSideSquare = columnNames[columnNumber + 1] + row;
 
-      const queenSideSquare = columnNames[columnNumber - 1] + row;
+    const queenSideSquare = columnNames[columnNumber - 1] + row;
 
-      const kingSideCastlingSquare = columnNames[columnNumber + 2] + row;
-      const queenSideCastlingSquare = columnNames[columnNumber - 2] + row;
+    const kingSideCastlingSquare = columnNames[columnNumber + 2] + row;
+    const queenSideCastlingSquare = columnNames[columnNumber - 2] + row;
 
-      let kingSideCastlingAvaliable = false;
-      let queenSideCastlingAvaliable = false;
+    let kingSideCastlingAvaliable = false;
+    let queenSideCastlingAvaliable = false;
 
-      let kingSideCastlingIndex = -1;
-      let queenSideCastlingIndex = -1;
+    let kingSideCastlingIndex = -1;
+    let queenSideCastlingIndex = -1;
 
-      // Checking if castling is avaliable
-      // and getting indexes for castling squares
-      // to delete if not avaliable
-      for (const index in kingMoves) {
-        if (kingMoves[index] === kingSideSquare) {
-          kingSideCastlingAvaliable = true;
-        }
-
-        if (kingMoves[index] === queenSideSquare) {
-          queenSideCastlingAvaliable = true;
-        }
-
-        if (kingMoves[index] === kingSideCastlingSquare) {
-          kingSideCastlingIndex = Number(index);
-        }
-
-        if (kingMoves[index] === queenSideCastlingSquare) {
-          queenSideCastlingIndex = Number(index);
-        }
+    // Checking if castling is avaliable
+    // and getting indexes for castling squares
+    // to delete them if not avaliable
+    for (const index in kingMoves) {
+      if (kingMoves[index] === kingSideSquare) {
+        kingSideCastlingAvaliable = true;
       }
 
-      const movesToDelete = [];
-
-      if (!kingSideCastlingAvaliable && kingSideCastlingIndex !== -1) {
-        movesToDelete.push(kingSideCastlingIndex);
+      if (kingMoves[index] === queenSideSquare) {
+        queenSideCastlingAvaliable = true;
       }
 
-      if (!queenSideCastlingAvaliable && queenSideCastlingIndex !== -1) {
-        movesToDelete.push(queenSideCastlingIndex);
+      if (kingMoves[index] === kingSideCastlingSquare) {
+        kingSideCastlingIndex = Number(index);
       }
 
-      for (var i = movesToDelete.length - 1; i >= 0; i--) {
-        kingMoves.splice(movesToDelete[i], 1);
+      if (kingMoves[index] === queenSideCastlingSquare) {
+        queenSideCastlingIndex = Number(index);
       }
+    }
+
+    const movesToDelete = [];
+
+    if (!kingSideCastlingAvaliable && kingSideCastlingIndex !== -1) {
+      movesToDelete.push(kingSideCastlingIndex);
+    }
+
+    if (!queenSideCastlingAvaliable && queenSideCastlingIndex !== -1) {
+      movesToDelete.push(queenSideCastlingIndex);
+    }
+
+    for (var i = movesToDelete.length - 1; i >= 0; i--) {
+      kingMoves.splice(movesToDelete[i], 1);
     }
   }
 

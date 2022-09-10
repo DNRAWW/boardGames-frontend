@@ -29,15 +29,15 @@ export default function Square(props: SquareProps) {
     <div
       id={`square_` + props.square}
       className={
-        `relative w-24 h-24 ` +
-        (props.color == Colors.BLACK ? "bg-blue-400 " : "bg-blue-300 ") +
+        `relative w-9 h-9 lg:w-24 lg:h-24 md:w-20 md:h-20 sm:w-20 sm:h-20 ` +
+        (props.color == Colors.BLACK ? "bg-emerald-500 " : "bg-emerald-200 ") +
         (props.avaliable
           ? "cursor-pointer before:content-[''] before:absolute "
           : "") +
         // TODO: Make it more readable
         (props.children && props.avaliable
-          ? "before:border-red-400 before:w-full before:h-full before:box-border before:border-solid before:rounded-3xl"
-          : "before:bg-green-300 before:m-auto before:left-0 before:right-0 before:bottom-0 before:top-0 before:block before:w-1/3 before:h-1/3 before:rounded-full")
+          ? "before:border-red-500 before:w-full before:h-full before:box-border before:border-solid before:rounded-3xl"
+          : "before:bg-blue-600 before:m-auto before:left-0 before:right-0 before:bottom-0 before:top-0 before:block before:w-1/3 before:h-1/3 before:rounded-full")
       }
       onClick={handleClick}
     >
