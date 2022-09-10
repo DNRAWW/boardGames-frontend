@@ -171,23 +171,35 @@ export default function BoardComponent(props: BoardProps) {
     props.eventEmitter.emit("checkGameOver");
   }, []);
 
-  // TODO: Make game over message appear over the board
-
   return (
     <div>
       <div className="relative">
-        {promotionState && props.eventEmitter ? (
-          <PromotionComponent
-            color={promotionState.color}
-            eventEmitter={props.eventEmitter}
-            from={promotionState.from}
-            to={promotionState.to}
-          ></PromotionComponent>
-        ) : null}
+        <div
+          style={{
+            transform: "translateY(-150%)" + " translate(-50%, 0)",
+          }}
+          className={
+            "block absolute left-1/2 " +
+            "transition-opacity ease-in-out duration-300 " +
+            "top-1/4 " +
+            (promotionState && props.eventEmitter
+              ? "z-10 opacity-100"
+              : "opacity-0")
+          }
+        >
+          {promotionState && props.eventEmitter ? (
+            <PromotionComponent
+              color={promotionState.color}
+              eventEmitter={props.eventEmitter}
+              from={promotionState.from}
+              to={promotionState.to}
+            ></PromotionComponent>
+          ) : null}
+        </div>
         <div
           className={
-            "block h-full absolute text-center " +
-            "left-0 right-0 mr-auto ml-auto " +
+            "block h-full absolute text-white text-center " +
+            "left-0 right-0 mx-auto " +
             (gameOverMessage ? "z-10" : "")
           }
         >
@@ -197,14 +209,14 @@ export default function BoardComponent(props: BoardProps) {
             }}
             className={
               "transition-opacity ease-in-out duration-300 inline-block " +
-              "relative top-1/2 m-0 p-4 rounded-3xl bg-teal-400 " +
+              "relative top-1/2 m-0 p-4 rounded-3xl bg-red-800 " +
               (gameOverMessage ? "opacity-100" : "opacity-0")
             }
           >
             {gameOverMessage ? gameOverMessage : ""}
           </h2>
         </div>
-        <div className="border-solid grid grid-cols-chessSM sm:grid-cols-chessMD lg:grid-cols-chess md:grid-cols-chessMD gap-0">
+        <div className="border-solid border-emerald-600 grid grid-cols-chessSM sm:grid-cols-chessMD lg:grid-cols-chess md:grid-cols-chessMD gap-0">
           {squaresState}
         </div>
       </div>

@@ -10,7 +10,7 @@ interface PromotionProps {
   eventEmitter: TypedEmitter<PromotionEvents>;
 }
 
-// TODO: Button close, background, make it over the board (add prop for classNames)
+// TODO: Button close, background
 
 export default function PromotionComponent(props: PromotionProps) {
   const pieces = [Pieces.BISHOP, Pieces.KNIGHT, Pieces.QUEEN, Pieces.ROOK];
@@ -19,7 +19,12 @@ export default function PromotionComponent(props: PromotionProps) {
   for (const piece of pieces) {
     piecesToRender.push(
       <div
-        className="mr-3"
+        className={
+          "px-4  " +
+          (piece !== Pieces.ROOK
+            ? "border-x-0 border-y-0 border-r-2 border-solid"
+            : "")
+        }
         onClick={() => {
           props.eventEmitter.emit("promote", props.from, props.to, piece);
           props.eventEmitter.emit("closePromotion");
@@ -31,5 +36,17 @@ export default function PromotionComponent(props: PromotionProps) {
     );
   }
 
-  return <div className="flex">{piecesToRender}</div>;
+  return (
+    <div className="flex justify-center bg-emerald-300 rounded-2xl">
+      <div className="flex">{piecesToRender}</div>
+      <button
+        className="block h-5 border-none rounded-md mt-1 mr-4"
+        onClick={() => {
+          props.eventEmitter.emit("closePromotion");
+        }}
+      >
+        x
+      </button>
+    </div>
+  );
 }

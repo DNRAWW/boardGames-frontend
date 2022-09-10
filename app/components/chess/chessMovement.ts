@@ -260,7 +260,7 @@ export class ChessMovement {
 
     this.board[from] = null;
 
-    this.eventEmitter.emit("emptySquare", from);
+    this.eventEmitter.emit("move", from, to, Pieces.PAWN, this.colorToMove);
     this.eventEmitter.emit("placePiece", pieceToPlace, this.colorToMove, to);
 
     this.runAfterMoveLogic();
