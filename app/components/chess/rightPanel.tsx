@@ -23,7 +23,7 @@ export default function RightPanel(props: LeftPanelProps) {
   }, []);
 
   return (
-    <div className="block w-max p-5 bg-emerald-300 rounded-2xl">
+    <div className="block w-max p-5 bg-emerald-400 rounded-2xl">
       <div>
         <h2
           className={
@@ -31,7 +31,7 @@ export default function RightPanel(props: LeftPanelProps) {
             (colorToMove == Colors.WHITE ? "text-white" : "text-black")
           }
         >
-          {colorToMove[0].toUpperCase() + colorToMove.slice(1)} move
+          {colorToMove[0].toUpperCase() + colorToMove.slice(1)}'s move
         </h2>
       </div>
 

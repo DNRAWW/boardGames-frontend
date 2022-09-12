@@ -339,6 +339,16 @@
   background-color: rgb(167 243 208 / var(--tw-bg-opacity))
 }
 
+.bg-emerald-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(52 211 153 / var(--tw-bg-opacity))
+}
+
+.bg-green-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(74 222 128 / var(--tw-bg-opacity))
+}
+
 .p-4 {
   padding: 1rem
 }
@@ -376,32 +386,6 @@
 
 .opacity-0 {
   opacity: 0
-}
-
-.shadow-lg {
-  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
-}
-
-.outline {
-  outline-style: solid
-}
-
-.outline-1 {
-  outline-width: 1px
-}
-
-.outline-2 {
-  outline-width: 2px
-}
-
-.outline-4 {
-  outline-width: 4px
-}
-
-.outline-black {
-  outline-color: #000
 }
 
 .transition-opacity {
