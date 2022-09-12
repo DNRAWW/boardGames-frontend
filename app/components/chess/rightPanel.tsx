@@ -23,7 +23,7 @@ export default function RightPanel(props: LeftPanelProps) {
   }, []);
 
   return (
-    <div className="block p-5 bg-cyan-300 rounded-2xl">
+    <div className="block p-5 bg-emerald-300 rounded-2xl">
       <div>
         <h2 className="text-center m-0 mb-2">
           {colorToMove[0].toUpperCase() + colorToMove.slice(1)} move
@@ -32,7 +32,7 @@ export default function RightPanel(props: LeftPanelProps) {
 
       <button
         onClick={props.handlePlayAgain}
-        className="block bg-gray-100 border-none rounded-md mx-auto w-36 h-16"
+        className="block bg-gray-50 active:bg-gray-200 border-none rounded-md mx-auto w-36 h-12"
       >
         Play again
       </button>
