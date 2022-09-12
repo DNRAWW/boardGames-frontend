@@ -92,22 +92,27 @@ export default function Chess() {
     <main key={renderCount}>
       <h1>Play chess</h1>
 
-      <div className="flex justify-center flex-wrap">
-        <div>
-          <Board
-            squares={squares}
-            perspective={perspective}
-            rules={rules.regularRules}
-            eventEmitter={eventEmitter}
-            key={playAgain}
-          ></Board>
-        </div>
-        <div className="self-center">
-          <RightPanel
-            eventEmitter={eventEmitter}
-            handlePlayAgain={handlePlayAgain}
-            colorToMove={colorToMove}
-          ></RightPanel>
+      <div className="flex justify-center">
+        <div className="grid grid-cols-chessLayout gap-10">
+          <div></div>
+          <div>
+            <Board
+              squares={squares}
+              perspective={perspective}
+              rules={rules.regularRules}
+              eventEmitter={eventEmitter}
+              key={playAgain}
+            ></Board>
+          </div>
+          <div className="self-center">
+            <div className="">
+              <RightPanel
+                eventEmitter={eventEmitter}
+                handlePlayAgain={handlePlayAgain}
+                colorToMove={colorToMove}
+              ></RightPanel>
+            </div>
+          </div>
         </div>
       </div>
     </main>

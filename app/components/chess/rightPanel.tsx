@@ -23,7 +23,7 @@ export default function RightPanel(props: LeftPanelProps) {
   }, []);
 
   return (
-    <div className="block p-5 bg-emerald-300 rounded-2xl">
+    <div className="block w-max p-5 bg-emerald-300 rounded-2xl">
       <div>
         <h2 className="text-center m-0 mb-2">
           {colorToMove[0].toUpperCase() + colorToMove.slice(1)} move
