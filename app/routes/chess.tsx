@@ -93,7 +93,7 @@ export default function Chess() {
       <h1>Play chess</h1>
 
       <div className="flex justify-center">
-        <div className="grid grid-cols-chessLayout gap-10">
+        <div className="grid md:grid-cols-chessLayoutMD lg:grid-cols-chessLayout gap-8">
           <div></div>
           <div>
             <Board
@@ -104,14 +104,12 @@ export default function Chess() {
               key={playAgain}
             ></Board>
           </div>
-          <div className="self-center">
-            <div className="">
-              <RightPanel
-                eventEmitter={eventEmitter}
-                handlePlayAgain={handlePlayAgain}
-                colorToMove={colorToMove}
-              ></RightPanel>
-            </div>
+          <div className="self-center mx-auto md:mx-0">
+            <RightPanel
+              eventEmitter={eventEmitter}
+              handlePlayAgain={handlePlayAgain}
+              colorToMove={colorToMove}
+            ></RightPanel>
           </div>
         </div>
       </div>

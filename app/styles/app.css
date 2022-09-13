@@ -246,10 +246,6 @@
   cursor: pointer
 }
 
-.grid-cols-chessLayout {
-  grid-template-columns: minmax(0, 20vw) minmax(18rem, 48.4rem) minmax(0, 20vw)
-}
-
 .grid-cols-chessSM {
   grid-template-columns: repeat(8, minmax(0, 2.25rem))
 }
@@ -258,8 +254,8 @@
   justify-content: center
 }
 
-.gap-10 {
-  gap: 2.5rem
+.gap-8 {
+  gap: 2rem
 }
 
 .gap-0 {
@@ -324,6 +320,11 @@
   background-color: rgb(110 231 183 / var(--tw-bg-opacity))
 }
 
+.bg-emerald-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(52 211 153 / var(--tw-bg-opacity))
+}
+
 .bg-gray-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity))
@@ -337,16 +338,6 @@
 .bg-emerald-200 {
   --tw-bg-opacity: 1;
   background-color: rgb(167 243 208 / var(--tw-bg-opacity))
-}
-
-.bg-emerald-400 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(52 211 153 / var(--tw-bg-opacity))
-}
-
-.bg-green-400 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(74 222 128 / var(--tw-bg-opacity))
 }
 
 .p-4 {
@@ -514,12 +505,21 @@
 }
 
 @media (min-width: 768px) {
+  .md\:mx-0 {
+    margin-left: 0px;
+    margin-right: 0px
+  }
+
   .md\:h-20 {
     height: 5rem
   }
 
   .md\:w-20 {
     width: 5rem
+  }
+
+  .md\:grid-cols-chessLayoutMD {
+    grid-template-columns: minmax(0, 20vw) minmax(40rem, 40rem) minmax(0, 20vw)
   }
 
   .md\:grid-cols-chessMD {
@@ -534,6 +534,10 @@
 
   .lg\:w-24 {
     width: 6rem
+  }
+
+  .lg\:grid-cols-chessLayout {
+    grid-template-columns: minmax(0, 20vw) minmax(48.4rem, 48.4rem) minmax(0, 20vw)
   }
 
   .lg\:grid-cols-chess {
