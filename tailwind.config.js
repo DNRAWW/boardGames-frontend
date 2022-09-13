@@ -10,7 +10,7 @@ module.exports = {
         'chessMD': 'repeat(8, minmax(0, 5rem))',
         'chessSM': 'repeat(8, minmax(0, 2.25rem))',
         'chessLayout': "minmax(0, 20vw), minmax(48.4rem, 48.4rem), minmax(0, 20vw)",
-        'chessLayoutMD': "minmax(0, 20vw), minmax(40rem, 40rem), minmax(0, 20vw)",
+        'chessLayoutMD': "0, minmax(40rem, 40rem), auto-fit",
         'chessLayoutSM': "minmax(18rem, 18rem), minmax(0, 20vw)",
       }
     },

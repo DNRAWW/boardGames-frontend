@@ -104,7 +104,7 @@ export default function Chess() {
               key={playAgain}
             ></Board>
           </div>
-          <div className="self-center mx-auto md:mx-0">
+          <div className="self-center mx-auto lg:mx-0">
             <RightPanel
               eventEmitter={eventEmitter}
               handlePlayAgain={handlePlayAgain}

@@ -519,7 +519,7 @@
   }
 
   .md\:grid-cols-chessLayoutMD {
-    grid-template-columns: minmax(0, 20vw) minmax(40rem, 40rem) minmax(0, 20vw)
+    grid-template-columns: 0 minmax(40rem, 40rem) auto-fit
   }
 
   .md\:grid-cols-chessMD {
@@ -528,6 +528,11 @@
 }
 
 @media (min-width: 1024px) {
+  .lg\:mx-0 {
+    margin-left: 0px;
+    margin-right: 0px
+  }
+
   .lg\:h-24 {
     height: 6rem
   }
