@@ -4,7 +4,6 @@ import { ChessRules } from "./rules";
 import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 
 // TODO: tie logic
-
 export class ChessCalculations {
   private readonly rules: ChessRules;
   private board: Board;
@@ -181,6 +180,7 @@ export class ChessCalculations {
           }
         }
       }
+
       this.rejectMovesLoop();
     }
   }

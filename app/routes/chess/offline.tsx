@@ -4,17 +4,15 @@ import {
   rules,
   getChessEventEmitter,
   RightPanel,
+  placeholderBoard,
+  renderSquaresWithFen,
+  ChessEvents,
+  ChessMovement,
+  BoardPersistence,
 } from "@components/chess";
 import { MetaFunction } from "@remix-run/node";
 import { useEffect, useState } from "react";
 import TypedEventEmitter from "typed-emitter";
-import { ChessEvents } from "~/components/chess/chessEventEmitter";
-import { ChessMovement } from "~/components/chess/chessMovement";
-import { BoardPersistence } from "~/components/chess/presistence/presistence";
-import {
-  placeholderBoard,
-  renderSquaresWithFen,
-} from "~/components/chess/renderFunctions";
 
 export const meta: MetaFunction = () => ({
   title: "Chess",
@@ -90,7 +88,7 @@ export default function Chess() {
 
   return (
     <main key={renderCount}>
-      <h1>Play chess</h1>
+      <h1>Offline chess</h1>
 
       <div className="flex justify-center">
         <div className="grid md:grid-cols-chessLayoutMD lg:grid-cols-chessLayout gap-8">

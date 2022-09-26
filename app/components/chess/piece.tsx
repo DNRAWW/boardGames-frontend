@@ -2,11 +2,6 @@ import { PieceEvents } from "./chessEventEmitter";
 import { Colors, Pieces } from "./utils";
 import TypedEmitter from "typed-emitter";
 
-const pieceStyle = {
-  width: "6rem",
-  height: "6rem",
-};
-
 interface PieceProps {
   color: Colors;
   piece: Pieces;

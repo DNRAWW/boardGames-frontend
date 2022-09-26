@@ -6,7 +6,7 @@ import {
 import { ChessRules } from "./rules";
 import { Colors, columnNames, getSquareInfo, Pieces } from "./utils";
 import TypedEmitter from "typed-emitter";
-import { BoardEvents, ChessEvents, PromotionEvents } from "./chessEventEmitter";
+import { BoardEvents, PromotionEvents } from "./chessEventEmitter";
 import { ChessCalculations } from "./chessCalculations";
 import { BoardPersistence } from "./presistence/presistence";
 
@@ -262,7 +262,7 @@ export class ChessMovement {
 
     this.board[from] = null;
 
-    this.eventEmitter.emit("move", from, to, Pieces.PAWN, this.colorToMove);
+    this.eventEmitter.emit("emptySquare", from);
     this.eventEmitter.emit("placePiece", pieceToPlace, this.colorToMove, to);
 
     this.runAfterMoveLogic();

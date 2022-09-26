@@ -34,7 +34,7 @@ export function formatColumns(row: string[]): string[] | null {
     row.forEach((column) => {
       const emptySpaces = parseInt(column);
 
-      if (emptySpaces != NaN && emptySpaces > 0) {
+      if (emptySpaces > 0) {
         for (let c = 0; c < emptySpaces; c++) {
           columns.push("");
         }

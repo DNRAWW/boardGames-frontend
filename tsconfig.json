@@ -14,7 +14,9 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "@components/chess": ["app/components/chess/index.ts"]
+      "@components/chess": ["./app/components/chess/index.ts"],
+      "@validationFunctions": ["./app/validationFunctions/index.server.ts"],
+      "@services": ["./app/services/index.server.ts"]
     },
 
     // Remix takes care of building everything in `remix build`.

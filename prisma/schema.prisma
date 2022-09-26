@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  login    String @unique
+  password String
+  email    String @unique
+  // Emailverifyed Boolean
+
+  Player Player?
+}
+
+model Player {
+  id       Int    @id @default(autoincrement())
+  user     User   @relation(fields: [userId], references: [id])
+  userId   Int    @unique
+  nickname String @unique
+
+  // Maybe rethink this ban system
+  // Banned boolean
+  // Ban reason
+  // Ban end
+
+  ChessGamesAsWhite ChessGame[] @relation(name: "WhitePlayer")
+  ChessGamesAsBlack ChessGame[] @relation(name: "BlackPlayer")
+
+  // PlayerChessProfile ChessProfile?
+}
+
+// model ChessProfile {
+//   id          Int    @id @default(autoincrement())
+//   player      Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+//   playerId    Int    @unique
+//   elo         Int    @default(0)
+//   gamesPlayed Int    @default(0)
+//   gamesWon    Int    @default(0)
+//   gamesTied   Int    @default(0)
+//   gamesLost   Int    @default(0)
+// }
+
+enum ChessGameResults {
+  BlackWon
+  WhiteWon
+  Draw
+}
+
+enum ChessPieces {
+  King
+  Queen
+  Knight
+  Bishop
+  Rook
+  Pawn
+}
+
+model Move {
+  id             Int          @id @default(autoincrement())
+  from           String
+  to             String
+  moveNumber     Int
+  promotionPiece ChessPieces?
+  ChessGame      ChessGame    @relation(fields: [chessGameId], references: [id], onDelete: Cascade)
+  chessGameId    Int
+}
+
+model ChessGame {
+  id            Int               @id @default(autoincrement())
+  whitePlayer   Player            @relation(fields: [whitePlayerId], references: [id], name: "WhitePlayer", onDelete: Cascade)
+  blackPlayer   Player            @relation(fields: [blackPlayerId], references: [id], name: "BlackPlayer", onDelete: Cascade)
+  whitePlayerId Int
+  blackPlayerId Int
+  result        ChessGameResults?
+  FEN           String            @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  numberOfMoves Int               @default(0)
+  Moves         Move[]
+}
