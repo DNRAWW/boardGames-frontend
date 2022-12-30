@@ -1,5 +1,9 @@
 # Chess TODO
 
+## BUGS:
+
+- [ ] Kings protected squares don't make it to chess calulations class
+
 ## Logic: 
 
 - [x] Turns
