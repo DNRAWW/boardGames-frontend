@@ -4,16 +4,16 @@
 
 - [x] Turns
 - [x] Check for dangerous moves
-- [ ] Persistence (Offline)
-- [ ] Checkmate
-- [ ] Promotion
+- [x] Persistence (Offline)
+- [x] Checkmate
+- [x] Promotion
 - [ ] Online
 - [ ] Time
 
 ## UI:
 
 - [ ] Check
-- [ ] Checkmate
+- [x] Checkmate
 - [ ] Promotion
 - [ ] Good UI
 - [ ] Time
